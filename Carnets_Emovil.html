@@ -331,6 +331,29 @@ td input:focus, td select:focus { border-color:#8B0000; outline:none; }
         <div id="importUserMsg" style="font-size:.8rem;margin-top:8px;"></div>
       </div>
 
+      <!-- ─── Google Sheets ─────────────────────────── -->
+      <div class="admin-section">
+        <h3>&#9729; Google Sheets (sincronización)</h3>
+        <p style="font-size:.8rem;color:#555;margin:0 0 10px;">
+          Conecta la app a una hoja de Google Sheets para compartir datos entre equipos y perfiles de Chrome.<br>
+          Si no configuras esto, los datos solo se guardan en este navegador.
+        </p>
+        <div class="field-row" style="align-items:center;gap:8px;flex-wrap:wrap;">
+          <label style="min-width:140px;font-size:.82rem;">URL del Apps Script:</label>
+          <input type="url" id="adminGsUrl" placeholder="https://script.google.com/macros/s/.../exec"
+            style="flex:1;min-width:260px;padding:7px 10px;border:1px solid #ccc;border-radius:5px;font-size:.82rem;">
+          <button onclick="guardarUrlGSAdmin()"
+            style="background:#8B0000;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:.83rem;white-space:nowrap;">
+            ✓ Guardar y conectar
+          </button>
+          <button onclick="borrarUrlGS()"
+            style="background:#ccc;color:#444;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-size:.83rem;">
+            ✕ Desconectar
+          </button>
+        </div>
+        <div id="adminGsMsg" style="font-size:.78rem;margin-top:6px;color:#27ae60;"></div>
+      </div>
+
       <!-- ─── Configuración de seguridad ───────────── -->
       <div class="admin-section">
         <h3>&#128274; Configuración de seguridad</h3>
@@ -855,7 +878,7 @@ function showTab(tab) {
   if (btn) btn.classList.add('active');
   if (tab === 'historial') renderizarHistorial();
   if (tab === 'estado')    renderizarEstado();
-  if (tab === 'admin')     { renderizarUsuarios(); cargarConfigSeguridad(); renderizarLog(); actualizarPermisosForm(); mostrarResumenPlanta(); }
+  if (tab === 'admin')     { renderizarUsuarios(); cargarConfigSeguridad(); renderizarLog(); actualizarPermisosForm(); mostrarResumenPlanta(); var gi=document.getElementById('adminGsUrl'); if(gi) gi.value=GS_URL||''; }
   reiniciarTimerSesion();
 }
 
@@ -1991,6 +2014,35 @@ function mostrarPantallaConfigGS() {
   document.getElementById('configGSScreen').style.display = 'flex';
 }
 
+function guardarUrlGSAdmin() {
+  var url = (document.getElementById('adminGsUrl').value || '').trim();
+  var msg = document.getElementById('adminGsMsg');
+  if (!url || !url.startsWith('https://script.google.com')) {
+    msg.style.color = '#c00';
+    msg.textContent = 'URL inválida. Debe empezar con https://script.google.com/...';
+    return;
+  }
+  GS_URL = url;
+  localStorage.setItem('carnets_emovil_gsurl', GS_URL);
+  msg.style.color = '#27ae60';
+  msg.textContent = '✓ URL guardada. Sincronizando...';
+  // Actualizar indicador
+  var ind = document.getElementById('gsIndicator');
+  if (ind) { ind.title='Sincronizado con Google Sheets'; ind.style.background='#27ae60'; ind.style.color='#fff'; ind.textContent='☁ Sheets'; }
+  cargarDesdeGSYIniciar();
+}
+
+function borrarUrlGS() {
+  GS_URL = '';
+  localStorage.removeItem('carnets_emovil_gsurl');
+  var msg = document.getElementById('adminGsMsg');
+  if (msg) { msg.style.color='#888'; msg.textContent='Desconectado. Los datos se guardan solo en este navegador.'; }
+  var ind = document.getElementById('gsIndicator');
+  if (ind) { ind.title='Modo local'; ind.style.background='#f39c12'; ind.style.color='#fff'; ind.textContent='💻 Local'; }
+  var inp = document.getElementById('adminGsUrl');
+  if (inp) inp.value = '';
+}
+
 function guardarUrlGS() {
   var url = (document.getElementById('gsUrlInput').value || '').trim();
   var err = document.getElementById('gsUrlError');
@@ -2068,10 +2120,10 @@ function completarInit() {
 
 window.addEventListener('load', function() {
   seedRows();
-  if (!GS_URL) {
-    mostrarPantallaConfigGS();
-  } else {
+  if (GS_URL) {
     cargarDesdeGSYIniciar();
+  } else {
+    completarInit(); // Sin GS: abrir directo al login en modo local
   }
 });
 </script>
