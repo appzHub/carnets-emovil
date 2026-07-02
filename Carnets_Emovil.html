@@ -176,7 +176,7 @@ td input:focus, td select:focus { border-color:#8B0000; outline:none; }
   <!-- HEADER -->
   <div class="app-header no-print">
     <h1>&#128196; eMóvil — Generador de Carnets</h1>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div id="userInfo" style="display:flex;align-items:center;gap:8px;">
       <span class="user-info">&#128100; <span id="headerUser"></span>
         &nbsp;|&nbsp; <span id="headerRol" style="font-size:.73rem;opacity:.8;"></span>
       </span>
@@ -848,7 +848,8 @@ function activarHombreMuerto() {
 function iniciarApp(sesion) {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appScreen').style.display   = 'block';
-  document.getElementById('userInfo').textContent = sesion.nombre + ' (' + sesion.rol + ')';
+  var hu = document.getElementById('headerUser'); if (hu) hu.textContent = sesion.nombre;
+  var hr = document.getElementById('headerRol');  if (hr) hr.textContent = sesion.rol;
   // Mostrar/ocultar tabs según permisos
   var users = cargarUsuarios();
   var u = users[sesion.login] || {};
