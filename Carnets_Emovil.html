@@ -594,6 +594,34 @@ function getPermisos(u) {
   return PERMISOS_DEFAULT[u.rol] || ['estado'];
 }
 
+function renderPermisosCheckboxes(permsSeleccionados) {
+  var container = document.getElementById('permisosForm');
+  if (!container) return;
+  container.innerHTML = '';
+  Object.keys(PERMISOS_LABELS).forEach(function(key) {
+    var checked = permsSeleccionados && permsSeleccionados.indexOf(key) !== -1;
+    var label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;';
+    label.innerHTML = '<input type="checkbox" value="' + key + '"' + (checked ? ' checked' : '') + '> ' + PERMISOS_LABELS[key];
+    container.appendChild(label);
+  });
+}
+
+function actualizarPermisosForm() {
+  var rol = document.getElementById('newUserRol');
+  if (!rol) return;
+  renderPermisosCheckboxes(PERMISOS_DEFAULT[rol.value] || []);
+}
+
+function leerPermisosForm() {
+  var container = document.getElementById('permisosForm');
+  if (!container) return null;
+  var checks = container.querySelectorAll('input[type="checkbox"]');
+  var result = [];
+  checks.forEach(function(cb) { if (cb.checked) result.push(cb.value); });
+  return result.length > 0 ? result : null;
+}
+
 function tienePermiso(permiso) {
   var s = sesionActual();
   if (!s) return false;
