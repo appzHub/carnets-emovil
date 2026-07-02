@@ -2084,6 +2084,8 @@ function cargarDesdeGSYIniciar() {
 }
 
 window.addEventListener('load', function() {
+  // Cargar planta desde localStorage al iniciar (persiste entre sesiones)
+  try { _listaMaestra = JSON.parse(localStorage.getItem(PLANTA_KEY)) || []; } catch(e) {}
   seedRows();
   if (GS_URL) {
     cargarDesdeGSYIniciar();
