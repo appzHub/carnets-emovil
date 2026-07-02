@@ -1908,9 +1908,7 @@ function cargarPlantaDesdeAdmin() {
       var text = '';
       try { text = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
       catch(ex) { text = new TextDecoder('windows-1252').decode(bytes); }
-      onRows(text.split(/
-?
-/));
+      onRows(text.split(/\r?\n/));
     };
     reader.readAsArrayBuffer(f);
   } else {
@@ -1919,8 +1917,7 @@ function cargarPlantaDesdeAdmin() {
       var data = new Uint8Array(e.target.result);
       var wb = XLSX.read(data, {type:'array'});
       var ws = wb.Sheets[wb.SheetNames[0]];
-      onRows(XLSX.utils.sheet_to_csv(ws).split('
-'));
+      onRows(XLSX.utils.sheet_to_csv(ws).split('\n'));
     };
     reader2.readAsArrayBuffer(f);
   }
@@ -2039,93 +2036,4 @@ function borrarUrlGS() {
   if (msg) { msg.style.color='#888'; msg.textContent='Desconectado. Los datos se guardan solo en este navegador.'; }
   var ind = document.getElementById('gsIndicator');
   if (ind) { ind.title='Modo local'; ind.style.background='#f39c12'; ind.style.color='#fff'; ind.textContent='💻 Local'; }
-  var inp = document.getElementById('adminGsUrl');
-  if (inp) inp.value = '';
-}
-
-function guardarUrlGS() {
-  var url = (document.getElementById('gsUrlInput').value || '').trim();
-  var err = document.getElementById('gsUrlError');
-  if (!url || !url.startsWith('https://script.google.com')) {
-    err.textContent = 'URL inválida. Debe empezar con https://script.google.com/...';
-    return;
-  }
-  err.textContent = '';
-  GS_URL = url;
-  localStorage.setItem('carnets_emovil_gsurl', GS_URL);
-  document.getElementById('configGSScreen').style.display = 'none';
-  cargarDesdeGSYIniciar();
-}
-
-function usarModoOffline() {
-  document.getElementById('configGSScreen').style.display = 'none';
-  document.getElementById('loadingScreen').style.display = 'none';
-  completarInit();
-}
-
-function cargarDesdeGSYIniciar() {
-  var ls = document.getElementById('loadingScreen');
-  var connErr = document.getElementById('gsConnError');
-  var offBtn = document.getElementById('gsOfflineBtn');
-  ls.style.display = 'flex';
-  fetch(GS_URL + '?ts=' + Date.now())
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      sincronizarDesdeGS(data);
-      ls.style.display = 'none';
-      completarInit();
-    })
-    .catch(function(err) {
-      connErr.textContent = 'No se pudo conectar: ' + err.message;
-      connErr.style.display = 'block';
-      offBtn.style.display = 'inline-block';
-    });
-}
-
-function completarInit() {
-  actualizarContadorHist();
-  patchGuardar();
-  renderPermisosCheckboxes(PERMISOS_DEFAULT['operador']);
-
-  // Indicador de conexión
-  var ind = document.createElement('span');
-  ind.id = 'gsIndicator';
-  ind.title = GS_URL ? 'Sincronizado con Google Sheets' : 'Modo local (sin sincronización)';
-  ind.style.cssText = 'font-size:.72rem;padding:2px 8px;border-radius:10px;margin-left:8px;'
-    + (GS_URL ? 'background:#27ae60;color:#fff;' : 'background:#f39c12;color:#fff;');
-  ind.textContent = GS_URL ? '☁ Sheets' : '💻 Local';
-  var ui = document.getElementById('userInfo');
-  if (ui) ui.appendChild(ind);
-
-  // Verificar sesión existente
-  var s = sesionActual();
-  if (s) {
-    var cfg = cargarConfig();
-    if (cfg.hombreMuertoTs && cfg.hombreMuertoTs > s.inicio) {
-      sessionStorage.removeItem(SESSION_KEY);
-      return;
-    }
-    iniciarApp(s);
-    reiniciarTimerSesion();
-  }
-
-  document.getElementById('loginPass').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') doLogin();
-  });
-  document.getElementById('loginUser').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') document.getElementById('loginPass').focus();
-  });
-  document.getElementById('filas').addEventListener('paste', pegarDesdeExcel);
-}
-
-window.addEventListener('load', function() {
-  seedRows();
-  if (GS_URL) {
-    cargarDesdeGSYIniciar();
-  } else {
-    completarInit(); // Sin GS: abrir directo al login en modo local
-  }
-});
-</script>
-</body>
-</html>
+  var inp = document.getElementByI
