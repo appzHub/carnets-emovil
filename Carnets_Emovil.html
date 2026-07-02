@@ -2036,4 +2036,18 @@ function borrarUrlGS() {
   if (msg) { msg.style.color='#888'; msg.textContent='Desconectado. Los datos se guardan solo en este navegador.'; }
   var ind = document.getElementById('gsIndicator');
   if (ind) { ind.title='Modo local'; ind.style.background='#f39c12'; ind.style.color='#fff'; ind.textContent='💻 Local'; }
-  var inp = document.getElementByI
+  var inp = document.getElementById('adminGsUrl');
+  if (inp) inp.value = '';
+}
+
+window.addEventListener('load', function() {
+  seedRows();
+  if (GS_URL) {
+    cargarDesdeGSYIniciar();
+  } else {
+    completarInit(); // Sin GS: abrir directo al login en modo local
+  }
+});
+</script>
+</body>
+</html>
