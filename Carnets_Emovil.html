@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Carnets eMóvil</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #ddd; }
+
+/* ── LOGIN ────────────────────────────────────────── */
+#loginScreen { display:flex; align-items:center; justify-content:center;
+  min-height:100vh; background:linear-gradient(135deg,#6b0000 0%,#b22222 100%); }
+.login-box { background:#fff; border-radius:10px; padding:40px 36px;
+  box-shadow:0 8px 32px rgba(0,0,0,.35); width:340px; }
+.login-box h1 { color:#8B0000; font-size:1.3rem; text-align:center;
+  margin-bottom:6px; }
+.login-box .sub { text-align:center; color:#777; font-size:.8rem;
+  margin-bottom:22px; }
+.login-box label { font-size:.8rem; font-weight:bold; color:#444;
+  display:block; margin-bottom:3px; margin-top:14px; }
+.login-box input[type=text], .login-box input[type=password] {
+  width:100%; border:1px solid #ccc; border-radius:4px;
+  padding:9px 10px; font-size:.9rem; }
+.login-box input:focus { border-color:#8B0000; outline:none; }
+#loginMsg { color:#c00; font-size:.78rem; margin-top:10px; text-align:center;
+  min-height:18px; }
+.login-box .btn-login { width:100%; margin-top:18px; padding:11px;
+  background:#8B0000; color:#fff; border:none; border-radius:4px;
+  font-size:.95rem; font-weight:bold; cursor:pointer; }
+.login-box .btn-login:hover { background:#6b0000; }
+
+/* ── APP HEADER ───────────────────────────────────── */
+.app-header { background:#8B0000; color:#fff; padding:10px 24px;
+  display:flex; align-items:center; justify-content:space-between; }
+.app-header h1 { font-size:1rem; font-weight:bold; }
+.app-header .user-info { font-size:.8rem; }
+.app-header .btn-logout { background:rgba(255,255,255,.2); color:#fff;
+  border:1px solid rgba(255,255,255,.4); border-radius:4px;
+  padding:4px 12px; font-size:.8rem; cursor:pointer; margin-left:12px; }
+.app-header .btn-logout:hover { background:rgba(255,255,255,.35); }
+
+/* ── TABS ─────────────────────────────────────────── */
+.tabs { background:#6b0000; display:flex; gap:2px; padding:0 24px; }
+.tab-btn { background:rgba(255,255,255,.12); color:#fff; border:none;
+  padding:10px 20px; font-size:.85rem; font-weight:bold; cursor:pointer;
+  border-radius:6px 6px 0 0; transition:background .15s; }
+.tab-btn:hover { background:rgba(255,255,255,.22); }
+.tab-btn.active { background:#fff; color:#8B0000; }
+
+/* ── PANEL ────────────────────────────────────────── */
+.panel { max-width:900px; margin:20px auto; background:#fff;
+  border-radius:8px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.2); }
+h1 { color:#8B0000; font-size:1.3rem; margin-bottom:5px; }
+.sub { color:#666; font-size:.82rem; margin-bottom:14px; }
+.hint { background:#fffbea; border:1px solid #d4b800; border-radius:4px;
+  padding:10px 13px; font-size:.8rem; color:#555; margin-bottom:14px; line-height:1.7; }
+
+.btn { cursor:pointer; border:none; border-radius:4px;
+  padding:9px 18px; font-size:.88rem; font-weight:bold; margin-right:6px; }
+.btn-gris  { background:#555;    color:#fff; }
+.btn-rojo  { background:#8B0000; color:#fff; }
+.btn-verde { background:#1a6e1a; color:#fff; }
+.btn-azul  { background:#1a5280; color:#fff; }
+.btn:hover { opacity:.85; }
+
+.reimp-row { display:flex; align-items:center; gap:10px;
+  margin-bottom:14px; padding:10px 14px;
+  background:#fff0f0; border:1px solid #e0a0a0; border-radius:4px; }
+.reimp-row label { font-size:.88rem; font-weight:bold; color:#8B0000; cursor:pointer; }
+.reimp-row input[type=checkbox] { width:16px; height:16px; accent-color:#8B0000; cursor:pointer; }
+.reimp-row .warn { font-size:.78rem; color:#c00; }
+
+/* ── HISTORIAL ──────────────────────────────────── */
+.hist-panel { background:#f8f8f8; border:1px solid #ccc; border-radius:4px;
+  padding:12px 14px; margin-bottom:14px; }
+.hist-panel h3 { color:#8B0000; font-size:.9rem; margin-bottom:8px; }
+.hist-table th { background:#555; font-size:.73rem; padding:5px 4px;
+  color:#fff; text-align:left; }
+.hist-table td { padding:4px; font-size:.73rem; border-bottom:1px solid #eee; }
+.badge-reimp { background:#8B0000; color:#fff; border-radius:3px; padding:1px 6px; font-size:.68rem; }
+.badge-normal { background:#1a6e1a; color:#fff; border-radius:3px; padding:1px 6px; font-size:.68rem; }
+.dup-warn { background:#fff3cd; border:1px solid #e0c000; border-radius:3px;
+  padding:3px 8px; font-size:.73rem; color:#7a5800; font-weight:bold; }
+
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:.83rem; }
+th { background:#8B0000; color:#fff; padding:8px 6px; text-align:left; }
+td { padding:3px 4px; border-bottom:1px solid #eee; }
+td input, td select { width:100%; border:1px solid #ccc; padding:5px;
+  border-radius:3px; font-size:.83rem; }
+td input:focus, td select:focus { border-color:#8B0000; outline:none; }
+.x { background:none; border:none; color:#b00; cursor:pointer; font-size:1rem; }
+
+/* ── ADMIN ────────────────────────────────────────── */
+.admin-section { background:#f0f5ff; border:1px solid #99b; border-radius:6px;
+  padding:16px; margin-bottom:18px; }
+.admin-section h3 { color:#1a3a6e; font-size:.9rem; margin-bottom:10px; }
+.field-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+.field-row label { font-size:.8rem; color:#444; min-width:120px; }
+.field-row input, .field-row select { flex:1; border:1px solid #ccc;
+  border-radius:4px; padding:6px 8px; font-size:.83rem; }
+.field-row input:focus { border-color:#8B0000; outline:none; }
+
+/* ── CARNET ──────────────────────────────────────── */
+.carnet { position:relative; width:90mm; height:60mm;
+  display:inline-block; border-radius:2.5mm;
+  overflow:hidden; vertical-align:top;
+  border:none; outline:none;
+  flex-shrink:0; }
+.carnet img { position:absolute; top:0; left:0;
+  width:100%; height:100%; display:block;
+  border:none; outline:none;
+  filter:url(#sharpen) contrast(1.06) brightness(1.01); }
+.dato { position:absolute; font-family:Arial, sans-serif;
+  color:#111; z-index:10; white-space:nowrap;
+  overflow:hidden; line-height:1; }
+.d-nombre { font-size:7.5pt; left:41%;   top:37.5%; max-width:44mm; }
+.d-cedula { font-size:7.5pt; left:41%;   top:48.0%; max-width:44mm; }
+.d-codigo { font-size:7.5pt; left:55%;   top:58.5%; max-width:30mm; }
+.d-cargo  { font-size:6.5pt; left:3mm;   top:42mm;  max-width:80mm; font-style:italic; color:#333; }
+.d-un     { font-size:6.5pt; left:9mm;   top:47mm; font-weight:bold; color:#444; max-width:27mm; }
+.d-consec { font-size:6.5pt; left:55mm;  top:47mm; font-weight:bold; color:#444; }
+
+/* ── PREVIEW ─────────────────────────────────────── */
+.preview { max-width:900px; margin:20px auto; background:#fff;
+  border-radius:8px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.2); }
+.preview h2 { color:#8B0000; font-size:1rem; margin-bottom:12px; }
+.pagina { display:flex; flex-wrap:wrap; gap:5mm;
+  padding:6mm; margin-bottom:14px; width:fit-content; }
+
+/* ── PRINT ───────────────────────────────────────── */
+@media print {
+  @page { size:letter portrait; margin:12mm; }
+  .no-print { display:none !important; }
+  body { background:#fff; }
+  .preview { margin:0; padding:0; box-shadow:none; }
+  .preview h2 { display:none; }
+  .pagina { display:grid; grid-template-columns:90mm 90mm;
+    gap:4mm; padding:0; margin:0; page-break-after:always; }
+  .pagina:last-child { page-break-after:auto; }
+  .carnet { width:90mm; height:60mm; }
+  .carnet img { filter:url(#sharpen) contrast(1.08) brightness(1.01); }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="sharpen" x="0" y="0" width="100%" height="100%"
+            color-interpolation-filters="sRGB">
+      <feConvolveMatrix order="3" preserveAlpha="true"
+        kernelMatrix="0 -0.5 0  -0.5 3 -0.5  0 -0.5 0"/>
+    </filter>
+  </defs>
+</svg>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>&#128196; eMóvil — Carnets</h1>
+    <p class="sub">Ingresa tus credenciales para continuar</p>
+    <form onsubmit="doLogin(event); return false;">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" autocomplete="username" placeholder="usuario">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••">
+      <div id="loginMsg"></div>
+      <button type="submit" class="btn-login">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ══════════════════════════════════ -->
+<div id="appScreen" style="display:none">
+
+  <!-- HEADER -->
+  <div class="app-header no-print">
+    <h1>&#128196; eMóvil — Generador de Carnets</h1>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="user-info">&#128100; <span id="headerUser"></span>
+        &nbsp;|&nbsp; <span id="headerRol" style="font-size:.73rem;opacity:.8;"></span>
+      </span>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs no-print">
+    <button class="tab-btn active" id="tabBtnCrear"
+      onclick="showTab('crear')">&#9998; Crear Carnets</button>
+    <button class="tab-btn" id="tabBtnHistorial"
+      onclick="showTab('historial')">&#128203; Historial</button>
+    <button class="tab-btn" id="tabBtnEstado"
+      onclick="showTab('estado')">&#128100; Estado de Carnets</button>
+    <button class="tab-btn" id="tabBtnAdmin" style="display:none"
+      onclick="showTab('admin')">&#9881; Administración</button>
+  </div>
+
+  <!-- ── TAB: CREAR ────────────────────────────────────── -->
+  <div id="tabCrear">
+    <div class="panel no-print">
+      <p class="sub">Completa los datos y haz clic en <b>Generar Carnets</b>.</p>
+      <div class="hint">
+        <b>Pegar desde Excel:</b> Copia filas con las columnas y pégalas en el campo <em>Nombre</em> de cualquier fila — se distribuyen automáticamente.<br>
+        <b>Al imprimir:</b> Desactiva "Encabezados y pies de página" &bull; Escala 100% &bull; Papel Carta.
+      </div>
+
+      <!-- Subir archivo -->
+      <div style="background:#f0f5ff;border:1px solid #99b;border-radius:4px;
+          padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:#333;">
+        <b>&#128196; Cargar desde archivo:</b> Sube un CSV o Excel con columnas:
+        <em>Código de Nómina, Nombre, Cédula, UN, Cargo</em> (primera fila = encabezado).<br><br>
+        <button class="btn btn-gris" onclick="descargarPlantilla()" style="margin-bottom:8px;">
+          &#11015; Descargar plantilla Excel</button><br>
+        <input type="file" id="archivoPlano" accept=".csv,.xlsx,.xls"
+          style="font-size:.82rem;" onchange="cargarArchivo(this)">
+        <span id="fileStatus" style="margin-left:10px;color:#1a6e1a;font-weight:bold;"></span>
+      </div>
+
+      <!-- Reimpresión -->
+      <div class="reimp-row">
+        <input type="checkbox" id="chkReimp">
+        <label for="chkReimp">&#9888; Reimpresión (R1-)</label>
+        <span class="warn">Al activar y generar se pedirá confirmación.</span>
+        <span id="histCount" style="font-size:.78rem;color:#555;margin-left:auto;"></span>
+      </div>
+
+      <!-- Tabla de datos -->
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%">Código Nómina</th>
+            <th style="width:28%">Nombre Completo</th>
+            <th style="width:17%">Cédula</th>
+            <th style="width:9%">UN</th>
+            <th style="width:23%">Cargo</th>
+            <th style="width:7%"></th>
+          </tr>
+        </thead>
+        <tbody id="filas"></tbody>
+      </table>
+
+      <button class="btn btn-gris"  onclick="agregarFila()">+ Fila</button>
+      <button class="btn btn-rojo"  onclick="generar()">&#9654; Generar Carnets</button>
+      <button class="btn btn-verde" onclick="imprimir()">&#128438; Imprimir</button>
+    </div>
+
+    <div id="vista" class="preview" style="display:none">
+      <h2 class="no-print">Vista previa — 8 carnets por hoja Carta (9×6 cm)</h2>
+      <div id="paginas"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: HISTORIAL ────────────────────────────────── -->
+  <div id="tabHistorial" style="display:none">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <h1 style="font-size:1.1rem;">&#128203; Historial de Carnets</h1>
+          <p class="sub" style="margin:0;">Todos los carnets generados quedan registrados aquí.</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="filtroHist" placeholder="Buscar nombre o código..."
+            style="border:1px solid #ccc;border-radius:4px;padding:6px 10px;font-size:.82rem;width:220px;"
+            oninput="renderizarHistorial()">
+          <button class="btn btn-gris" id="btnAdminLimpiar" onclick="limpiarHistorial()"
+            style="font-size:.78rem;padding:6px 12px;">&#128465; Limpiar historial</button>
+        </div>
+      </div>
+      <div id="histContenido"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: ADMIN ─────────────────────────────────────── -->
+  <div id="tabAdmin" style="display:none">
+    <div class="panel">
+      <h1 style="font-size:1.1rem;margin-bottom:16px;">&#9881; Administración</h1>
+
+      <!-- ─── Usuarios registrados ─────────────────── -->
+      <div class="admin-section">
+        <h3>Usuarios registrados</h3>
+        <div id="listaUsuarios"></div>
+      </div>
+
+      <!-- ─── Crear / editar usuario ───────────────── -->
+      <div class="admin-section">
+        <h3 id="formUserTitle">Crear nuevo usuario</h3>
+        <div class="field-row">
+          <label>Usuario</label>
+          <input type="text" id="newUserLogin" placeholder="Ej: jperez">
+        </div>
+        <div class="field-row">
+          <label>Nombre completo</label>
+          <input type="text" id="newUserNombre" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="field-row">
+          <label>Contraseña <small style="color:#888">(dejar vacío = sin contraseña)</small></label>
+          <input type="password" id="newUserPass" placeholder="Mínimo 4 caracteres">
+        </div>
+        <div class="field-row">
+          <label>Rol</label>
+          <select id="newUserRol" onchange="actualizarPermisosForm()">
+            <option value="operador">Operador (crear carnets)</option>
+            <option value="supervisor">Supervisor (cargar planta / ver estado)</option>
+            <option value="admin">Administrador (acceso completo)</option>
+          </select>
+        </div>
+        <div class="field-row" style="flex-direction:column;align-items:flex-start;margin-top:8px;">
+          <label style="margin-bottom:6px;font-weight:bold;">Permisos:</label>
+          <div id="permisosForm" style="display:flex;flex-wrap:wrap;gap:8px;font-size:.82rem;"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="btn btn-rojo" onclick="guardarUsuario()">&#128190; Guardar</button>
+          <button class="btn btn-gris" onclick="cancelarEdicionUsuario()">Cancelar</button>
+          <span id="userFormMsg" style="font-size:.8rem;margin-left:10px;"></span>
+        </div>
+      </div>
+
+      <!-- ─── Importar usuarios desde archivo ──────── -->
+      <div class="admin-section">
+        <h3>&#128196; Importar usuarios desde archivo</h3>
+        <p style="font-size:.8rem;color:#555;margin:4px 0 10px;">
+          CSV o Excel con columnas: <b>usuario, nombre, contraseña, rol</b>
+          (rol: admin u operador). Los usuarios existentes se actualizan.
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="file" id="archivoUsuarios" accept=".csv,.xlsx,.xls" style="font-size:.8rem;">
+          <button class="btn btn-rojo" onclick="importarUsuariosArchivo()">&#128280; Importar</button>
+          <button class="btn btn-gris" onclick="descargarPlantillaUsuarios()">&#11015; Plantilla</button>
+        </div>
+        <div id="importUserMsg" style="font-size:.8rem;margin-top:8px;"></div>
+      </div>
+
+      <!-- ─── Configuración de seguridad ───────────── -->
+      <div class="admin-section">
+        <h3>&#128274; Configuración de seguridad</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+          <div class="field-row" style="flex-direction:column;align-items:flex-start;">
+            <label style="margin-bottom:4px;">Intentos antes de bloqueo</label>
+            <select id="cfgIntentos">
+              <option value="3">3 intentos</option>
+              <option value="5">5 intentos</option>
+              <option value="10">10 intentos</option>
+              <option value="0">Sin límite</option>
+            </select>
+          </div>
+          <div class="field-row" style="flex-direction:column;align-items:flex-start;">
+            <label style="margin-bottom:4px;">Tiempo de bloqueo</label>
+            <select id="cfgBloqueoMin">
+              <option value="5">5 minutos</option>
+              <option value="15">15 minutos</option>
+              <option value="30">30 minutos</option>
+              <option value="60">60 minutos</option>
+            </select>
+          </div>
+          <div class="field-row" style="flex-direction:column;align-items:flex-start;">
+            <label style="margin-bottom:4px;">Tiempo de sesión (inactividad)</label>
+            <select id="cfgSesionMin">
+              <option value="0">Sin límite</option>
+              <option value="30">30 minutos</option>
+              <option value="60">60 minutos</option>
+              <option value="120">2 horas</option>
+            </select>
+          </div>
+          <div class="field-row" style="flex-direction:column;align-items:flex-start;">
+            <label style="margin-bottom:4px;">&#128308; Hombre muerto (cierre manual)</label>
+            <button class="btn" id="btnHombreMuerto"
+              onclick="activarHombreMuerto()"
+              style="background:#c0392b;color:#fff;padding:8px 16px;border-radius:6px;">
+              &#9940; Cerrar todas las sesiones ahora
+            </button>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="btn btn-rojo" onclick="guardarConfigSeguridad()">&#128190; Guardar configuración</button>
+          <span id="cfgMsg" style="font-size:.8rem;margin-left:10px;color:green;"></span>
+        </div>
+      </div>
+
+      <!-- ─── Cargar planta de empleados ──────────────── -->
+      <div class="admin-section">
+        <h3>&#128101; Cargar planta de empleados</h3>
+        <p style="font-size:.8rem;color:#555;margin:4px 0 10px;line-height:1.5;">
+          Sube el archivo con la lista completa de empleados. Se usará en la pestaña
+          <b>Estado de Carnets</b> para ver quién tiene y quién no tiene carnet.<br>
+          Columnas esperadas: <b>Nombre, Cédula, Código de Nómina, UN, Cargo</b>
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="file" id="archivoMaestroAdmin" accept=".csv,.xlsx,.xls"
+            style="font-size:.82rem;">
+          <button class="btn btn-rojo" onclick="cargarPlantaDesdeAdmin()">
+            &#128280; Cargar planta
+          </button>
+          <button class="btn btn-gris" onclick="limpiarPlanta()" style="font-size:.78rem;">
+            &#128465; Limpiar planta
+          </button>
+        </div>
+        <div id="plantaAdminMsg" style="font-size:.8rem;margin-top:8px;"></div>
+        <div id="plantaResumen" style="font-size:.8rem;margin-top:6px;color:#555;"></div>
+      </div>
+
+      <!-- ─── Log de acceso ─────────────────────────── -->
+      <div class="admin-section">
+        <h3>&#128203; Log de acceso</h3>
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="filtroLog" placeholder="Buscar usuario o acción..."
+            style="border:1px solid #ccc;border-radius:4px;padding:5px 9px;font-size:.8rem;width:220px;"
+            oninput="renderizarLog()">
+          <button class="btn btn-gris" onclick="limpiarLog()" style="font-size:.78rem;">
+            &#128465; Limpiar log
+          </button>
+          <button class="btn btn-gris" onclick="exportarLog()" style="font-size:.78rem;">
+            &#11015; Exportar log
+          </button>
+        </div>
+        <div id="logContenido" style="max-height:320px;overflow-y:auto;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB: ESTADO ────────────────────────────────────── -->
+  <div id="tabEstado" style="display:none">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <h1 style="font-size:1.1rem;">&#128100; Estado de Carnets</h1>
+          <p class="sub" style="margin:0;">Empleados con y sin carnet generado.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="filtroEstado" placeholder="Buscar nombre o código..."
+            style="border:1px solid #ccc;border-radius:4px;padding:6px 10px;font-size:.82rem;width:220px;"
+            oninput="renderizarEstado()">
+          <label style="font-size:.8rem;font-weight:bold;color:#555;white-space:nowrap;">
+            &#128196; Lista maestra:</label>
+          <input type="file" id="archivoMaestro" accept=".csv,.xlsx,.xls"
+            style="font-size:.78rem;" onchange="cargarListaMaestra(this)">
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:#666;margin-bottom:10px;background:#f0f5ff;
+          border:1px solid #99b;border-radius:4px;padding:8px 12px;">
+        <b>Lista maestra (opcional):</b> Sube un CSV/Excel con columna <em>Código de Nómina</em>
+        para ver también quiénes <b>no</b> tienen carnet.
+        Las columnas esperadas son: <em>Nombre, Cédula, Código de Nómina, UN, Cargo</em>.
+      </div>
+      <div id="estadoContenido"></div>
+    </div>
+  </div>
+
+
+<!-- ═══ PANTALLA DE CARGA ══════════════════════════════ -->
+<div id="loadingScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(107,0,0,.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
+  <div style="color:#fff;font-size:1.1rem;font-weight:bold;margin-bottom:16px;">⏳ Conectando con Google Sheets...</div>
+  <div style="width:220px;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;">
+    <div id="loadingBar" style="height:100%;width:30%;background:#fff;border-radius:3px;animation:loadSlide 1.2s infinite ease-in-out;"></div>
+  </div>
+  <style>@keyframes loadSlide{0%{margin-left:-30%}100%{margin-left:100%}}</style>
+  <p id="gsConnError" style="color:#ffaaaa;font-size:.82rem;margin-top:14px;display:none;"></p>
+  <button id="gsOfflineBtn" onclick="usarModoOffline()" style="display:none;margin-top:10px;
+    background:#fff;color:#8B0000;border:none;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:.88rem;">
+    Continuar sin Google Sheets
+  </button>
+</div>
+
+<!-- ═══ PANTALLA CONFIGURACIÓN GOOGLE SHEETS ════════════ -->
+<div id="configGSScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(135deg,#6b0000,#b22222);z-index:9998;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;padding:32px 36px;width:520px;max-width:95vw;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);">
+    <h2 style="color:#8B0000;margin:0 0 6px;font-size:1.1rem;">⚙ Configurar Google Sheets</h2>
+    <p style="font-size:.82rem;color:#555;margin:0 0 18px;line-height:1.6;">
+      Para compartir datos entre equipos, esta app se conecta a una hoja de Google Sheets.<br>
+      Sigue los pasos en el archivo <b>Instrucciones_GoogleSheets.txt</b> y pega aquí la URL del Apps Script.
+    </p>
+    <label style="font-size:.8rem;font-weight:bold;color:#444;">URL del Apps Script Web App:</label>
+    <input type="url" id="gsUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+      style="width:100%;margin:6px 0 12px;padding:9px 10px;border:1px solid #ccc;border-radius:5px;
+      font-size:.82rem;box-sizing:border-box;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="guardarUrlGS()"
+        style="background:#8B0000;color:#fff;border:none;padding:9px 20px;border-radius:5px;
+        cursor:pointer;font-size:.88rem;font-weight:bold;">✓ Guardar y conectar</button>
+      <button onclick="usarModoOffline()"
+        style="background:#ccc;color:#444;border:none;padding:9px 16px;border-radius:5px;
+        cursor:pointer;font-size:.83rem;">Solo este equipo (sin sincronización)</button>
+    </div>
+    <p id="gsUrlError" style="color:red;font-size:.78rem;margin:10px 0 0;"></p>
+    <hr style="margin:18px 0;border-color:#eee;">
+    <p style="font-size:.75rem;color:#888;margin:0;">
+      Si ya configuraste esto antes, la URL se guarda automáticamente en este navegador.
+    </p>
+  </div>
+</div>
+
+
+<!-- ═══ MODAL VERIFICACIÓN ARCHIVO ══════════════════ -->
+<div id="modalVerif" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.6);z-index:9990;align-items:flex-start;justify-content:center;
+  overflow-y:auto;padding:20px;box-sizing:border-box;">
+  <div style="background:#fff;border-radius:10px;width:100%;max-width:900px;margin:auto;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden;">
+    <div style="background:#8B0000;color:#fff;padding:14px 20px;display:flex;
+      justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;font-size:1rem;">📋 Verificación de archivo — revisión de cambios</h2>
+      <button onclick="cerrarVerif()" style="background:none;border:none;color:#fff;
+        font-size:1.2rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:16px 20px;">
+      <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;font-size:.8rem;">
+        <span style="background:#e8f5e9;border:1px solid #a5d6a7;padding:3px 8px;border-radius:4px;">
+          ✅ Igual a planta</span>
+        <span style="background:#fff3e0;border:1px solid #ffb74d;padding:3px 8px;border-radius:4px;">
+          ⚠ Datos difieren de planta</span>
+        <span style="background:#e3f2fd;border:1px solid #90caf9;padding:3px 8px;border-radius:4px;">
+          ℹ No está en planta</span>
+      </div>
+      <div id="verifTabla" style="overflow-x:auto;max-height:55vh;overflow-y:auto;"></div>
+      <div id="verifAdminBox" style="display:none;margin-top:14px;padding:12px;
+        background:#fff8e1;border:1px solid #f9a825;border-radius:6px;">
+        <p style="margin:0 0 8px;font-size:.85rem;font-weight:bold;color:#8B0000;">
+          ⚠ Hay filas que difieren de la planta. Se requiere aprobación de administrador.</p>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="password" id="verifAdminPass" placeholder="Contraseña admin"
+            style="border:1px solid #ccc;border-radius:4px;padding:6px 10px;font-size:.85rem;">
+          <button class="btn btn-rojo" onclick="confirmarVerif()">✓ Aprobar y cargar</button>
+          <button class="btn btn-gris" onclick="cerrarVerif()">Cancelar</button>
+        </div>
+        <p id="verifAdminMsg" style="margin:6px 0 0;font-size:.78rem;color:red;"></p>
+      </div>
+      <div id="verifBtnBox" style="margin-top:14px;display:flex;gap:8px;">
+        <button class="btn btn-rojo" id="verifBtnCargar" onclick="confirmarVerif()">
+          ✓ Cargar todas las filas</button>
+        <button class="btn btn-gris" onclick="cerrarVerif()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#appScreen -->
+
+<script>
+var IMG_SRC = 'data:image/jpeg;base64,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';
+
+// ══════════════════════════════════════════════
+//  CONSTANTES Y ALMACENAMIENTO
+// ══════════════════════════════════════════════
+var USERS_KEY  = 'carnets_emovil_usuarios';
+var SESSION_KEY= 'carnets_emovil_sesion';
+var HIST_KEY   = 'carnets_emovil_historial';
+var LOG_KEY    = 'carnets_emovil_log';
+var CFG_KEY    = 'carnets_emovil_config';
+var BLQ_KEY    = 'carnets_emovil_bloqueos';
+var PLANTA_KEY  = 'carnets_emovil_planta';
+
+var PERMISOS_DEFAULT = {
+  'admin':      ['crear','historial','estado','admin','planta'],
+  'operador':   ['crear','historial','estado'],
+  'supervisor': ['estado','planta']
+};
+var PERMISOS_LABELS = {
+  'crear':     '✏ Crear carnets',
+  'historial': '📋 Ver historial',
+  'estado':    '👤 Estado carnets',
+  'admin':     '⚙ Administración',
+  'planta':    '📋 Cargar planta'
+};
+
+function getPermisos(u) {
+  if (u.permisos) return u.permisos;
+  return PERMISOS_DEFAULT[u.rol] || ['estado'];
+}
+
+function tienePermiso(permiso) {
+  var s = sesionActual();
+  if (!s) return false;
+  var users = cargarUsuarios();
+  var u = users[s.login];
+  if (!u) return false;
+  return getPermisos(u).includes(permiso);
+}
+
+function defaultUsers() {
+  return {
+    'admin':      { nombre:'Administrador', pass: btoa('admin2024'), rol:'admin',
+                    permisos: ['crear','historial','estado','admin','planta'] },
+    'operador':   { nombre:'Operador',      pass: btoa('carnet123'), rol:'operador',
+                    permisos: ['crear','historial','estado'] },
+    'supervisor': { nombre:'Supervisor',    pass: btoa('super123'),  rol:'supervisor',
+                    permisos: ['estado','planta'] }
+  };
+}
+function cargarUsuarios() {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || defaultUsers(); }
+  catch(e) { return defaultUsers(); }
+}
+function guardarUsuarios(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+
+function cargarConfig() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function guardarConfig(c) { localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
+
+function cargarBloqueos() {
+  try { return JSON.parse(localStorage.getItem(BLQ_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function guardarBloqueos(b) { localStorage.setItem(BLQ_KEY, JSON.stringify(b)); }
+
+// ══════════════════════════════════════════════
+//  LOG DE ACCESO
+// ══════════════════════════════════════════════
+function cargarLog() {
+  try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
+  catch(e) { return []; }
+}
+function registrarLog(usuario, accion) {
+  var log = cargarLog();
+  log.unshift({ ts: Date.now(), usuario: usuario, accion: accion });
+  if (log.length > 500) log = log.slice(0, 500);
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+}
+function renderizarLog() {
+  var log = cargarLog();
+  var filtro = (document.getElementById('filtroLog')||{value:''}).value.toLowerCase();
+  var filtrado = filtro ? log.filter(function(e){
+    return e.usuario.toLowerCase().includes(filtro) || e.accion.toLowerCase().includes(filtro);
+  }) : log;
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.8rem;">'
+    + '<thead><tr style="background:#e8e8e8;">'
+    + '<th style="padding:5px 8px;text-align:left;">Fecha/Hora</th>'
+    + '<th style="padding:5px 8px;text-align:left;">Usuario</th>'
+    + '<th style="padding:5px 8px;text-align:left;">Acción</th>'
+    + '</tr></thead><tbody>';
+  if (!filtrado.length) {
+    html += '<tr><td colspan="3" style="padding:12px;text-align:center;color:#888;">Sin registros</td></tr>';
+  } else {
+    filtrado.forEach(function(e) {
+      var d = new Date(e.ts);
+      var ts = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO');
+      var esLogin = e.accion.toLowerCase().includes('ingres') || e.accion.toLowerCase().includes('login');
+      var color = esLogin ? '#e8f5e9' : '#fff';
+      html += '<tr style="background:' + color + ';border-bottom:1px solid #eee;">'
+        + '<td style="padding:4px 8px;color:#555;">' + esc(ts) + '</td>'
+        + '<td style="padding:4px 8px;font-weight:bold;">' + esc(e.usuario) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(e.accion) + '</td></tr>';
+    });
+  }
+  html += '</tbody></table>';
+  var el = document.getElementById('logContenido');
+  if (el) el.innerHTML = html;
+}
+function limpiarLog() {
+  if (!confirm('¿Borrar todo el log de acceso?')) return;
+  localStorage.removeItem(LOG_KEY);
+  renderizarLog();
+}
+function exportarLog() {
+  var log = cargarLog();
+  if (!log.length) { alert('No hay registros en el log.'); return; }
+  var csv = 'Fecha,Usuario,Acción\n';
+  log.forEach(function(e) {
+    var d = new Date(e.ts);
+    var ts = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO');
+    csv += '"' + ts + '","' + e.usuario + '","' + e.accion + '"\n';
+  });
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'log_acceso_emovil.csv';
+  a.click();
+}
+
+// ══════════════════════════════════════════════
+//  SEGURIDAD — BLOQUEO POR INTENTOS
+// ══════════════════════════════════════════════
+function estaBloquado(login) {
+  var cfg = cargarConfig();
+  var maxIntentos = parseInt(cfg.intentos || 3);
+  if (maxIntentos === 0) return false;
+  var blq = cargarBloqueos();
+  var b = blq[login];
+  if (!b) return false;
+  if (b.bloqueadoHasta && Date.now() < b.bloqueadoHasta) return true;
+  if (b.bloqueadoHasta && Date.now() >= b.bloqueadoHasta) {
+    delete blq[login];
+    guardarBloqueos(blq);
+  }
+  return false;
+}
+function tiempoRestanteBloqueo(login) {
+  var blq = cargarBloqueos();
+  var b = blq[login];
+  if (!b || !b.bloqueadoHasta) return 0;
+  return Math.max(0, Math.ceil((b.bloqueadoHasta - Date.now()) / 60000));
+}
+function registrarIntentoFallido(login) {
+  var cfg = cargarConfig();
+  var maxIntentos = parseInt(cfg.intentos || 3);
+  if (maxIntentos === 0) return;
+  var minBloqueo = parseInt(cfg.bloqueoMin || 5);
+  var blq = cargarBloqueos();
+  if (!blq[login]) blq[login] = { intentos: 0 };
+  blq[login].intentos = (blq[login].intentos || 0) + 1;
+  if (blq[login].intentos >= maxIntentos) {
+    blq[login].bloqueadoHasta = Date.now() + minBloqueo * 60000;
+    blq[login].intentos = 0;
+  }
+  guardarBloqueos(blq);
+}
+function resetearIntentos(login) {
+  var blq = cargarBloqueos();
+  delete blq[login];
+  guardarBloqueos(blq);
+}
+
+// ══════════════════════════════════════════════
+//  SESIÓN Y TIMEOUT
+// ══════════════════════════════════════════════
+var _sesionTimer = null;
+function sesionActual() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+  catch(e) { return null; }
+}
+function reiniciarTimerSesion() {
+  if (_sesionTimer) clearTimeout(_sesionTimer);
+  var cfg = cargarConfig();
+  var min = parseInt(cfg.sesionMin || 0);
+  if (!min) return;
+  _sesionTimer = setTimeout(function() {
+    alert('Sesión cerrada por inactividad.');
+    doLogout();
+  }, min * 60000);
+}
+
+// ══════════════════════════════════════════════
+//  AUTH — LOGIN / LOGOUT
+// ══════════════════════════════════════════════
+function doLogin() {
+  var login = (document.getElementById('loginUser').value || '').trim().toLowerCase();
+  var pass  = document.getElementById('loginPass').value || '';
+  var msgEl = document.getElementById('loginMsg');
+  msgEl.textContent = '';
+
+  if (!login || !pass) { msgEl.textContent = 'Ingresa usuario y contraseña.'; return; }
+
+  // Verificar bloqueo
+  if (estaBloquado(login)) {
+    var mins = tiempoRestanteBloqueo(login);
+    msgEl.textContent = 'Usuario bloqueado. Intenta en ' + mins + ' min.';
+    registrarLog(login, 'Intento bloqueado');
+    return;
+  }
+
+  var users = cargarUsuarios();
+  var u = users[login];
+  if (!u) { msgEl.textContent = 'Usuario o contraseña incorrectos.'; registrarIntentoFallido(login); return; }
+
+  // Verificar password
+  var passOk = false;
+  if (!u.pass || u.pass === '') {
+    // Sin contraseña asignada — no se puede entrar
+    msgEl.textContent = 'Esta cuenta no tiene contraseña configurada. Contacta al administrador.';
+    return;
+  }
+  try { passOk = (atob(u.pass) === pass); } catch(e) { passOk = (u.pass === pass); }
+
+  if (!passOk) {
+    registrarIntentoFallido(login);
+    var blq2 = cargarBloqueos();
+    var cfg2 = cargarConfig();
+    var max2 = parseInt(cfg2.intentos || 3);
+    var intentos2 = blq2[login] ? blq2[login].intentos : 0;
+    if (max2 > 0) {
+      msgEl.textContent = 'Contraseña incorrecta. Intento ' + intentos2 + '/' + max2 + '.';
+    } else {
+      msgEl.textContent = 'Usuario o contraseña incorrectos.';
+    }
+    registrarLog(login, 'Intento fallido de login');
+    return;
+  }
+
+  // Login exitoso
+  resetearIntentos(login);
+  var sesion = { login: login, nombre: u.nombre, rol: u.rol, inicio: Date.now() };
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
+  registrarLog(login, 'Ingresó al sistema');
+  iniciarApp(sesion);
+  reiniciarTimerSesion();
+}
+
+function doLogout() {
+  var s = sesionActual();
+  if (s) registrarLog(s.login, 'Cerró sesión');
+  if (_sesionTimer) clearTimeout(_sesionTimer);
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display   = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginMsg').textContent = '';
+  // Activar hombre muerto si está pendiente
+  var cfg = cargarConfig();
+  if (cfg.hombreMuertoActivo) {
+    cfg.hombreMuertoActivo = false;
+    guardarConfig(cfg);
+  }
+}
+
+// Hombre muerto — cierra TODAS las sesiones activas (borra sessionStorage global y forza re-login)
+function activarHombreMuerto() {
+  if (!confirm('¿Cerrar TODAS las sesiones activas inmediatamente? Esta acción no se puede deshacer.')) return;
+  var s = sesionActual();
+  if (s) registrarLog(s.login, 'HOMBRE MUERTO — cierre forzado de sesiones');
+  // Marcar en config para que cualquier otra pestaña detecte
+  var cfg = cargarConfig();
+  cfg.hombreMuertoTs = Date.now();
+  guardarConfig(cfg);
+  sessionStorage.removeItem(SESSION_KEY);
+  alert('Todas las sesiones han sido cerradas. Se requiere nuevo login.');
+  location.reload();
+}
+
+function iniciarApp(sesion) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display   = 'block';
+  document.getElementById('userInfo').textContent = sesion.nombre + ' (' + sesion.rol + ')';
+  // Mostrar/ocultar tabs según permisos
+  var users = cargarUsuarios();
+  var u = users[sesion.login] || {};
+  var perms = getPermisos(u);
+  ['crear','historial','estado','admin'].forEach(function(t) {
+    var btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.style.display = perms.includes(t) ? '' : 'none';
+  });
+  // Primera tab disponible
+  var primerTab = ['crear','historial','estado'].find(function(t){ return perms.includes(t); }) || 'crear';
+  showTab(primerTab);
+}
+
+// ══════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════
+function showTab(tab) {
+  ['crear','historial','estado','admin'].forEach(function(t) {
+    var el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.style.display = 'none';
+    var btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.remove('active');
+  });
+  var el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (el) el.style.display = '';
+  var btn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (btn) btn.classList.add('active');
+  if (tab === 'historial') renderizarHistorial();
+  if (tab === 'estado')    renderizarEstado();
+  if (tab === 'admin')     { renderizarUsuarios(); cargarConfigSeguridad(); renderizarLog(); actualizarPermisosForm(); mostrarResumenPlanta(); }
+  reiniciarTimerSesion();
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN — USUARIOS CRUD
+// ══════════════════════════════════════════════
+var _editandoUser = null;
+
+function renderizarUsuarios() {
+  var users = cargarUsuarios();
+  var s = sesionActual();
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.85rem;">'
+    + '<thead><tr style="background:#f0f0f0;">'
+    + '<th style="padding:6px 10px;text-align:left;">Login</th>'
+    + '<th style="padding:6px 10px;text-align:left;">Nombre</th>'
+    + '<th style="padding:6px 10px;text-align:left;">Rol</th>'
+    + '<th style="padding:6px 10px;text-align:left;">Permisos</th>'
+    + '<th style="padding:6px 10px;text-align:left;">Contraseña</th>'
+    + '<th style="padding:6px 10px;text-align:left;">Acciones</th>'
+    + '</tr></thead><tbody>';
+  Object.keys(users).forEach(function(login) {
+    var u = users[login];
+    var esYo = (s && s.login === login);
+    var blq = cargarBloqueos();
+    var esBloq = blq[login] && blq[login].bloqueadoHasta && Date.now() < blq[login].bloqueadoHasta;
+    var tienePass = u.pass && u.pass !== '';
+    html += '<tr style="border-bottom:1px solid #eee;' + (esBloq?'background:#fff0f0;':'') + '">'
+      + '<td style="padding:5px 10px;font-weight:bold;">' + esc(login) + (esYo?' <span style="color:#888;font-size:.75rem;">(yo)</span>':'') + '</td>'
+      + '<td style="padding:5px 10px;">' + esc(u.nombre) + '</td>'
+      + '<td style="padding:5px 10px;">'
+      + '<span style="background:' + (u.rol==='admin'?'#3498db':'#27ae60') + ';color:#fff;border-radius:3px;padding:2px 6px;font-size:.75rem;">'
+      + u.rol + '</span>'
+      + (esBloq?' <span style="background:#e74c3c;color:#fff;border-radius:3px;padding:2px 5px;font-size:.7rem;">🔒 BLOQUEADO</span>':'')
+      + '</td>'
+      + '<td style="padding:5px 10px;font-size:.75rem;">'
+      + getPermisos(u).map(function(p){ return '<span style="background:#eef;border:1px solid #aad;border-radius:3px;padding:1px 5px;margin:1px;">' + (PERMISOS_LABELS[p]||p) + '</span>'; }).join(' ')
+      + '</td>'
+      + '<td style="padding:5px 10px;font-size:.78rem;color:' + (tienePass?'#27ae60':'#e74c3c') + ';">'
+      + (tienePass ? '🔑 Asignada' : '⚠ Sin contraseña')
+      + '</td>'
+      + '<td style="padding:5px 10px;">';
+    html += '<button class="btn btn-gris" style="font-size:.75rem;padding:3px 7px;margin-right:3px;" onclick="editarUsuario(\'' + login + '\')">✏ Editar</button>';
+    if (esBloq) {
+      html += '<button class="btn btn-gris" style="font-size:.75rem;padding:3px 7px;margin-right:3px;background:#f39c12;color:#fff;" onclick="desbloquearUsuario(\'' + login + '\')">🔓 Desbloquear</button>';
+    }
+    if (tienePass) {
+      html += '<button class="btn btn-gris" style="font-size:.75rem;padding:3px 7px;margin-right:3px;background:#e67e22;color:#fff;" onclick="quitarPassword(\'' + login + '\')">🗑 Quitar pass</button>';
+    }
+    if (!esYo) {
+      html += '<button class="btn btn-gris" style="font-size:.75rem;padding:3px 7px;background:#e74c3c;color:#fff;" onclick="eliminarUsuario(\'' + login + '\')">✕ Eliminar</button>';
+    }
+    html += '</td></tr>';
+  });
+  html += '</tbody></table>';
+  var el = document.getElementById('listaUsuarios');
+  if (el) el.innerHTML = html;
+}
+
+function editarUsuario(login) {
+  var users = cargarUsuarios();
+  var u = users[login];
+  if (!u) return;
+  _editandoUser = login;
+  document.getElementById('formUserTitle').textContent = 'Editar usuario: ' + login;
+  document.getElementById('newUserLogin').value  = login;
+  document.getElementById('newUserLogin').disabled = true;
+  document.getElementById('newUserNombre').value = u.nombre;
+  document.getElementById('newUserPass').value   = '';
+  document.getElementById('newUserPass').placeholder = 'Dejar vacío = no cambiar contraseña';
+  document.getElementById('newUserRol').value    = u.rol;
+  document.getElementById('userFormMsg').textContent = '';
+  renderPermisosCheckboxes(getPermisos(u));
+}
+
+function cancelarEdicionUsuario() {
+  _editandoUser = null;
+  document.getElementById('formUserTitle').textContent = 'Crear nuevo usuario';
+  document.getElementById('newUserLogin').value   = '';
+  document.getElementById('newUserLogin').disabled = false;
+  document.getElementById('newUserNombre').value  = '';
+  document.getElementById('newUserPass').value    = '';
+  document.getElementById('newUserPass').placeholder = 'Mínimo 4 caracteres';
+  document.getElementById('newUserRol').value     = 'operador';
+  document.getElementById('userFormMsg').textContent = '';
+  renderPermisosCheckboxes(PERMISOS_DEFAULT['operador']);
+}
+
+function guardarUsuario() {
+  var login  = (_editandoUser || document.getElementById('newUserLogin').value.trim().toLowerCase());
+  var nombre = document.getElementById('newUserNombre').value.trim();
+  var pass   = document.getElementById('newUserPass').value;
+  var rol    = document.getElementById('newUserRol').value;
+  var msg    = document.getElementById('userFormMsg');
+  if (!login)  { msg.textContent = 'El login es obligatorio.'; msg.style.color='red'; return; }
+  if (!nombre) { msg.textContent = 'El nombre es obligatorio.'; msg.style.color='red'; return; }
+  if (!_editandoUser && pass.length > 0 && pass.length < 4) { msg.textContent = 'Mínimo 4 caracteres.'; msg.style.color='red'; return; }
+  var users = cargarUsuarios();
+  if (!_editandoUser && users[login]) { msg.textContent = 'Ya existe ese usuario.'; msg.style.color='red'; return; }
+  var passCodif = _editandoUser && !pass ? (users[login]||{}).pass||'' : (pass ? btoa(pass) : '');
+  var perms = leerPermisosForm() || PERMISOS_DEFAULT[rol] || [];
+  users[login] = { nombre: nombre, pass: passCodif, rol: rol, permisos: perms };
+  guardarUsuarios(users);
+  var s = sesionActual();
+  registrarLog((s?s.login:'?'), (_editandoUser?'Editó':'Creó') + ' usuario: ' + login);
+  msg.textContent = _editandoUser ? '✓ Usuario actualizado.' : '✓ Usuario creado.';
+  msg.style.color = 'green';
+  cancelarEdicionUsuario();
+  renderizarUsuarios();
+}
+
+function eliminarUsuario(login) {
+  var s = sesionActual();
+  if (s && s.login === login) { alert('No puedes eliminar tu propia cuenta.'); return; }
+  if (!confirm('¿Eliminar usuario "' + login + '"?')) return;
+  var users = cargarUsuarios();
+  delete users[login];
+  guardarUsuarios(users);
+  registrarLog((s?s.login:'?'), 'Eliminó usuario: ' + login);
+  renderizarUsuarios();
+}
+
+function quitarPassword(login) {
+  if (!confirm('¿Quitar la contraseña de "' + login + '"? El usuario no podrá ingresar sin contraseña.')) return;
+  var users = cargarUsuarios();
+  if (!users[login]) return;
+  users[login].pass = '';
+  guardarUsuarios(users);
+  var s = sesionActual();
+  registrarLog((s?s.login:'?'), 'Quitó contraseña de usuario: ' + login);
+  renderizarUsuarios();
+}
+
+function desbloquearUsuario(login) {
+  resetearIntentos(login);
+  var s = sesionActual();
+  registrarLog((s?s.login:'?'), 'Desbloqueó usuario: ' + login);
+  renderizarUsuarios();
+}
+
+// ── Importar usuarios desde archivo ──
+function importarUsuariosArchivo() {
+  var fileInput = document.getElementById('archivoUsuarios');
+  var msgEl = document.getElementById('importUserMsg');
+  if (!fileInput.files.length) { msgEl.innerHTML = '<span style="color:red">Selecciona un archivo primero.</span>'; return; }
+  var f = fileInput.files[0];
+  var nombre = f.name.toLowerCase();
+  if (nombre.endsWith('.csv') || nombre.endsWith('.txt')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var bytes = new Uint8Array(e.target.result);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
+      catch(ex) { text = new TextDecoder('windows-1252').decode(bytes); }
+      procesarArchivousuarios(text.split(/\r?\n/), msgEl);
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_csv(ws).split('\n');
+      procesarArchivousuarios(rows, msgEl);
+    };
+    reader2.readAsArrayBuffer(f);
+  }
+}
+
+function procesarArchivousuarios(lines, msgEl) {
+  var s = sesionActual();
+  var users = cargarUsuarios();
+  var creados = 0, actualizados = 0, errores = [];
+  // Detectar separador
+  var sep = ',';
+  if (lines[0] && lines[0].includes('\t')) sep = '\t';
+  else if (lines[0] && lines[0].includes(';')) sep = ';';
+
+  // Mapear cabeceras
+  var cabeceras = lines[0].split(sep).map(function(c){ return c.trim().toLowerCase().replace(/[^a-z]/g,''); });
+  var iU = cabeceras.indexOf('usuario'); if(iU<0) iU=0;
+  var iN = cabeceras.indexOf('nombre');  if(iN<0) iN=1;
+  var iP = cabeceras.indexOf('contrasena')||cabeceras.indexOf('password')||cabeceras.indexOf('pass'); if(iP<0) iP=2;
+  var iR = cabeceras.indexOf('rol');     if(iR<0) iR=3;
+
+  for (var i = 1; i < lines.length; i++) {
+    var l = lines[i].trim();
+    if (!l) continue;
+    var cols = l.split(sep).map(function(c){ return c.trim().replace(/^"|"$/g,''); });
+    var login  = (cols[iU]||'').trim().toLowerCase();
+    var nombre = (cols[iN]||'').trim();
+    var pass   = (cols[iP]||'').trim();
+    var rol    = (cols[iR]||'operador').trim().toLowerCase();
+    if (!login) continue;
+    if (rol !== 'admin' && rol !== 'operador') rol = 'operador';
+    var esNuevo = !users[login];
+    users[login] = {
+      nombre: nombre || login,
+      pass:   pass ? btoa(pass) : (users[login]||{}).pass||'',
+      rol:    rol
+    };
+    if (esNuevo) creados++; else actualizados++;
+  }
+  if (errores.length === 0) {
+    guardarUsuarios(users);
+    registrarLog((s?s.login:'?'), 'Importó usuarios: ' + creados + ' creados, ' + actualizados + ' actualizados');
+    msgEl.innerHTML = '<span style="color:green">✓ ' + creados + ' creados, ' + actualizados + ' actualizados.</span>';
+    renderizarUsuarios();
+  } else {
+    msgEl.innerHTML = '<span style="color:red">Errores: ' + errores.join('; ') + '</span>';
+  }
+}
+
+function descargarPlantillaUsuarios() {
+  var csv = 'usuario,nombre,contraseña,rol\njperez,Juan Pérez,Pass1234,operador\nmgomez,María Gómez,Pass5678,admin\n';
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plantilla_usuarios_emovil.csv';
+  a.click();
+}
+
+// ── Configuración seguridad ──
+function cargarConfigSeguridad() {
+  var cfg = cargarConfig();
+  var el;
+  el = document.getElementById('cfgIntentos');   if (el) el.value = cfg.intentos   || '3';
+  el = document.getElementById('cfgBloqueoMin'); if (el) el.value = cfg.bloqueoMin || '5';
+  el = document.getElementById('cfgSesionMin');  if (el) el.value = cfg.sesionMin  || '0';
+}
+function guardarConfigSeguridad() {
+  var cfg = cargarConfig();
+  cfg.intentos   = document.getElementById('cfgIntentos').value;
+  cfg.bloqueoMin = document.getElementById('cfgBloqueoMin').value;
+  cfg.sesionMin  = document.getElementById('cfgSesionMin').value;
+  guardarConfig(cfg);
+  var s = sesionActual();
+  registrarLog((s?s.login:'?'), 'Actualizó configuración de seguridad');
+  var msg = document.getElementById('cfgMsg');
+  if (msg) { msg.textContent = '✓ Guardado.'; setTimeout(function(){ msg.textContent=''; }, 2000); }
+  reiniciarTimerSesion();
+}
+
+// ══════════════════════════════════════════════
+//  HISTORIAL
+// ══════════════════════════════════════════════
+function cargarHistorial() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+  catch(e) { return []; }
+}
+function guardarEnHistorial(registros) {
+  var hist = cargarHistorial();
+  var s = sesionActual();
+  registros.forEach(function(r) {
+    hist.unshift({
+      ts:      Date.now(),
+      usuario: s ? s.login : 'desconocido',
+      nombre:  r.nombre || '',
+      cedula:  r.cedula || '',
+      codigo:  r.codigo || '',
+      cargo:   r.cargo  || '',
+      un:      r.un     || '',
+      consec:  r.consec || ''
+    });
+  });
+  if (hist.length > 2000) hist = hist.slice(0, 2000);
+  localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+  actualizarContadorHist();
+}
+function actualizarContadorHist() {
+  var n = cargarHistorial().length;
+  var el = document.getElementById('contHistorial');
+  if (el) el.textContent = n;
+}
+function verificarDuplicados(datos) {
+  var hist = cargarHistorial();
+  var dups = [];
+  datos.forEach(function(d) {
+    if (d.codigo && hist.some(function(h){ return h.codigo === d.codigo; })) {
+      dups.push(d.codigo);
+    }
+  });
+  return dups;
+}
+function renderizarHistorial() {
+  var hist = cargarHistorial();
+  var filtro = (document.getElementById('filtroHist')||{value:''}).value.toLowerCase();
+  var filtrado = filtro ? hist.filter(function(h){
+    return (h.nombre+h.cedula+h.codigo+h.cargo+h.un+h.consec+h.usuario).toLowerCase().includes(filtro);
+  }) : hist;
+  actualizarContadorHist();
+  var html = '';
+  if (!filtrado.length) {
+    html = '<p style="text-align:center;color:#888;margin:24px;">Sin registros en el historial.</p>';
+  } else {
+    html = '<table style="width:100%;border-collapse:collapse;font-size:.82rem;">'
+      + '<thead><tr style="background:#f0f0f0;">'
+      + '<th style="padding:5px 8px;text-align:left;">#</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Nombre</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cédula</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Código</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cargo</th>'
+      + '<th style="padding:5px 8px;text-align:left;">UN</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Consec.</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Usuario</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Fecha</th>'
+      + '<th style="padding:5px 8px;">Acción</th>'
+      + '</tr></thead><tbody>';
+    filtrado.forEach(function(h, i) {
+      var d = new Date(h.ts);
+      var ts = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit'});
+      html += '<tr style="border-bottom:1px solid #eee;">'
+        + '<td style="padding:4px 8px;color:#888;">' + (i+1) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(h.nombre) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(h.cedula) + '</td>'
+        + '<td style="padding:4px 8px;font-weight:bold;">' + esc(h.codigo) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(h.cargo) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(h.un) + '</td>'
+        + '<td style="padding:4px 8px;font-family:monospace;">' + esc(h.consec) + '</td>'
+        + '<td style="padding:4px 8px;color:#555;">' + esc(h.usuario||'') + '</td>'
+        + '<td style="padding:4px 8px;color:#666;white-space:nowrap;">' + ts + '</td>'
+        + '<td style="padding:4px 8px;">'
+        + '<button class="btn btn-gris" style="font-size:.72rem;padding:2px 6px;" '
+        + 'onclick=\'reimprimirDesdeHistorial(' + JSON.stringify(h) + ')\'>♻ Reimprimir</button>'
+        + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  var el = document.getElementById('historialContenido');
+  if (el) el.innerHTML = html;
+}
+function reimprimirDesdeHistorial(h) {
+  showTab('crear');
+  document.getElementById('filas').innerHTML = '';
+  agregarFila(h.nombre, h.cedula, h.codigo, h.un, h.cargo);
+  document.querySelector('.panel').scrollIntoView({ behavior:'smooth' });
+}
+function limpiarHistorial() {
+  if (!confirm('¿Borrar todo el historial de carnets?')) return;
+  localStorage.removeItem(HIST_KEY);
+  renderizarHistorial();
+}
+
+// ══════════════════════════════════════════════
+//  ESTADO DE CARNETS
+// ══════════════════════════════════════════════
+var _listaMaestra = [];
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+
+// ── Merge inteligente de planta ──────────────────────
+// Reglas:
+//  - Fila 100% idéntica → se queda UNA (la más reciente)
+//  - Fila nueva → se agrega
+//  - Fila antigua no presente en el nuevo archivo → se conserva
+function mergePlanta(existente, nuevos) {
+  function clave(r) {
+    return (r.n + '||' + r.c + '||' + r.k + '||' + r.u + '||' + r.g)
+           .toLowerCase().trim();
+  }
+  var mapa  = {};  // clave → registro
+  var orden = [];  // preservar orden de inserción
+
+  // 1. Cargar todos los registros existentes
+  existente.forEach(function(r) {
+    var k = clave(r);
+    if (!mapa[k]) { mapa[k] = r; orden.push(k); }
+  });
+
+  // 2. Procesar los nuevos:
+  //    - Si la clave ya existe → reemplazar con la versión nueva (keep latest)
+  //    - Si la clave no existe → agregar al final
+  nuevos.forEach(function(r) {
+    var k = clave(r);
+    if (mapa[k]) {
+      mapa[k] = r;          // misma fila exacta, actualiza con la nueva
+    } else {
+      mapa[k] = r;          // fila nueva, agregar
+      orden.push(k);
+    }
+  });
+
+  return orden.map(function(k) { return mapa[k]; });
+}
+
+function cargarListaMaestra(input) {
+  var f = input.files[0];
+  if (!f) return;
+  var nombre = f.name.toLowerCase();
+  if (nombre.endsWith('.csv') || nombre.endsWith('.txt')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var bytes = new Uint8Array(e.target.result);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
+      catch(ex) { text = new TextDecoder('windows-1252').decode(bytes); }
+      var nuevos = parsearFilasMaestro(text.split(/\r?\n/));
+      var existente = _listaMaestra.length ? _listaMaestra
+        : (function(){ try{ return JSON.parse(localStorage.getItem(PLANTA_KEY))||[]; }catch(e){ return []; } })();
+      _listaMaestra = mergePlanta(existente, nuevos);
+      localStorage.setItem(PLANTA_KEY, JSON.stringify(_listaMaestra));
+      if (GS_URL) gsSync(PLANTA_KEY, _listaMaestra);
+      renderizarEstado();
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_csv(ws).split('\n');
+      var nuevos = parsearFilasMaestro(rows);
+      var existente = _listaMaestra.length ? _listaMaestra
+        : (function(){ try{ return JSON.parse(localStorage.getItem(PLANTA_KEY))||[]; }catch(e){ return []; } })();
+      _listaMaestra = mergePlanta(existente, nuevos);
+      localStorage.setItem(PLANTA_KEY, JSON.stringify(_listaMaestra));
+      if (GS_URL) gsSync(PLANTA_KEY, _listaMaestra);
+      renderizarEstado();
+    };
+    reader2.readAsArrayBuffer(f);
+  }
+}
+
+function parsearFilasMaestro(lines) {
+  var result = [];
+  if (!lines.length) return result;
+  var sep = '\t';
+  if (!lines[0].includes('\t')) sep = lines[0].includes(';') ? ';' : ',';
+  var hdrs = lines[0].split(sep).map(function(h){ return h.trim().toLowerCase(); });
+  var iN = -1, iC = -1, iK = -1, iU = -1, iG = -1;
+  hdrs.forEach(function(h, i) {
+    if (/nombre/.test(h)) iN = i;
+    if (/c[eé]dula/.test(h)) iC = i;
+    if (/c[oó]digo|nomina|nómina/.test(h)) iK = i;
+    if (/\bun\b|unidad/.test(h)) iU = i;
+    if (/cargo/.test(h)) iG = i;
+  });
+  for (var i = 1; i < lines.length; i++) {
+    var l = lines[i].trim(); if (!l) continue;
+    var cols = l.split(sep).map(function(c){ return c.trim().replace(/^"|"$/g,''); });
+    result.push({
+      n: cols[iN>=0?iN:0] || '',
+      c: cols[iC>=0?iC:1] || '',
+      k: cols[iK>=0?iK:2] || '',
+      u: cols[iU>=0?iU:4] || '',
+      g: cols[iG>=0?iG:3] || ''
+    });
+  }
+  return result;
+}
+
+function renderizarEstado() {
+  // Cargar planta guardada si _listaMaestra está vacía
+  if (!_listaMaestra.length) {
+    try { _listaMaestra = JSON.parse(localStorage.getItem(PLANTA_KEY)) || []; } catch(e) {}
+  }
+  var hist    = cargarHistorial();
+  var filtro  = (document.getElementById('filtroEstado')||{value:''}).value.toLowerCase();
+  var codigosConCarnet = {};
+  hist.forEach(function(h){ if (h.codigo) codigosConCarnet[h.codigo] = h; });
+
+  var conCarnet = [], sinCarnet = [];
+
+  // Combinar historial y lista maestra
+  var codigosEnMaestra = {};
+  _listaMaestra.forEach(function(m){ if (m.k) codigosEnMaestra[m.k] = m; });
+
+  // Del historial — tienen carnet
+  Object.keys(codigosConCarnet).forEach(function(k) {
+    var h = codigosConCarnet[k];
+    var m = codigosEnMaestra[k] || {};
+    var item = { k: k, n: m.n||h.nombre, c: m.c||h.cedula, u: m.u||h.un, g: m.g||h.cargo, consec: h.consec };
+    if (!filtro || JSON.stringify(item).toLowerCase().includes(filtro)) conCarnet.push(item);
+  });
+
+  // De la maestra — sin carnet
+  _listaMaestra.forEach(function(m) {
+    if (!codigosConCarnet[m.k]) {
+      if (!filtro || JSON.stringify(m).toLowerCase().includes(filtro)) sinCarnet.push(m);
+    }
+  });
+
+  var html = '';
+  if (conCarnet.length) {
+    html += '<h3 style="font-size:.9rem;color:#27ae60;margin:10px 0 6px;">✅ Con carnet (' + conCarnet.length + ')</h3>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:16px;">'
+      + '<thead><tr style="background:#e8f5e9;">'
+      + '<th style="padding:5px 8px;text-align:left;">Nombre</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cédula</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Código</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cargo</th>'
+      + '<th style="padding:5px 8px;text-align:left;">UN</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Consec.</th>'
+      + '<th style="padding:5px 8px;">Acción</th>'
+      + '</tr></thead><tbody>';
+    conCarnet.forEach(function(item) {
+      html += '<tr style="border-bottom:1px solid #eee;">'
+        + '<td style="padding:4px 8px;">' + esc(item.n) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(item.c) + '</td>'
+        + '<td style="padding:4px 8px;font-weight:bold;">' + esc(item.k) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(item.g) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(item.u) + '</td>'
+        + '<td style="padding:4px 8px;font-family:monospace;">' + esc(item.consec) + '</td>'
+        + '<td style="padding:4px 8px;">'
+        + '<button class="btn btn-gris" style="font-size:.72rem;padding:2px 6px;" '
+        + 'onclick=\'crearCarnetDesdeEstado(' + JSON.stringify(item) + ')\'>♻ Reimprimir</button>'
+        + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  if (sinCarnet.length) {
+    html += '<h3 style="font-size:.9rem;color:#e74c3c;margin:10px 0 6px;">❌ Sin carnet (' + sinCarnet.length + ')</h3>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:.8rem;">'
+      + '<thead><tr style="background:#fdecea;">'
+      + '<th style="padding:5px 8px;text-align:left;">Nombre</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cédula</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Código</th>'
+      + '<th style="padding:5px 8px;text-align:left;">Cargo</th>'
+      + '<th style="padding:5px 8px;text-align:left;">UN</th>'
+      + '<th style="padding:5px 8px;">Acción</th>'
+      + '</tr></thead><tbody>';
+    sinCarnet.forEach(function(m) {
+      html += '<tr style="border-bottom:1px solid #eee;">'
+        + '<td style="padding:4px 8px;">' + esc(m.n) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(m.c) + '</td>'
+        + '<td style="padding:4px 8px;font-weight:bold;">' + esc(m.k) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(m.g) + '</td>'
+        + '<td style="padding:4px 8px;">' + esc(m.u) + '</td>'
+        + '<td style="padding:4px 8px;">'
+        + '<button class="btn btn-rojo" style="font-size:.72rem;padding:2px 6px;" '
+        + 'onclick=\'crearCarnetDesdeEstado(' + JSON.stringify(m) + ')\'>+ Crear carnet</button>'
+        + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  if (!conCarnet.length && !sinCarnet.length) {
+    html = '<p style="text-align:center;color:#888;margin:24px;">Sin datos. Genera carnets o sube una lista maestra.</p>';
+  }
+  var el = document.getElementById('estadoContenido');
+  if (el) el.innerHTML = html;
+}
+
+function crearCarnetDesdeEstado(d) {
+  showTab('crear');
+  document.getElementById('filas').innerHTML = '';
+  agregarFila(d.n||'', d.c||'', d.k||'', d.u||'', d.g||'');
+  document.querySelector('.panel').scrollIntoView({ behavior:'smooth' });
+}
+
+// ══════════════════════════════════════════════
+//  TABLA DE DATOS (FILAS)
+// ══════════════════════════════════════════════
+var UNS = ['MT','PE','DE'];
+
+// ── Buscar empleado en la planta por código de nómina
+function buscarEnPlanta(codigo) {
+  if (!codigo) return null;
+  var planta = _listaMaestra.length ? _listaMaestra : [];
+  if (!planta.length) {
+    try { planta = JSON.parse(localStorage.getItem(PLANTA_KEY)) || []; } catch(e) {}
+  }
+  return planta.find(function(r){ return (r.k||'').trim() === codigo.trim(); }) || null;
+}
+
+// ── Autocompletar campos al escribir el código de nómina
+function autocompletarFila(codigoInput) {
+  var tr = codigoInput.closest('tr');
+  var codigo = codigoInput.value.trim();
+  if (!codigo) return;
+  var dato = buscarEnPlanta(codigo);
+  if (!dato) return;
+  var ins = tr.querySelectorAll('input,select');
+  // 0=codigo, 1=nombre, 2=cedula, 3=UN, 4=cargo
+  ins[1].value = dato.n || '';
+  ins[2].value = dato.c || '';
+  ins[3].value = dato.u || '';
+  ins[4].value = dato.g || '';
+  [ins[1], ins[2], ins[3], ins[4]].forEach(function(el) {
+    el.dataset.plantaVal = el.value;
+    el.style.background = '#f0f8ff';
+  });
+}
+
+// ── Verificar cambio manual de campo proveniente de la planta
+function verificarCambioManual(input) {
+  var plantaVal = input.dataset.plantaVal;
+  if (plantaVal === undefined) return;
+  if (input.value === plantaVal) return;
+  var s = sesionActual();
+  if (s && s.rol === 'admin') {
+    if (!confirm('Este campo proviene de la planta.\nValor original: "' + plantaVal + '"\n¿Confirmas el cambio?')) {
+      input.value = plantaVal; return;
+    }
+    delete input.dataset.plantaVal;
+    input.style.background = '#fff8e1';
+    return;
+  }
+  var pass = prompt('Campo llenado desde la planta. Requiere contraseña de administrador.\nValor original: "' + plantaVal + '"');
+  if (pass === null) { input.value = plantaVal; return; }
+  var users = cargarUsuarios();
+  var ok = Object.keys(users).some(function(k){
+    var u = users[k];
+    return u.rol === 'admin' && u.pass &&
+      (function(){ try{ return atob(u.pass) === pass; }catch(e){ return false; } })();
+  });
+  if (!ok) {
+    alert('Contraseña incorrecta. Campo restaurado al valor de la planta.');
+    input.value = plantaVal;
+  } else {
+    delete input.dataset.plantaVal;
+    input.style.background = '#fff8e1';
+  }
+}
+
+function agregarFila(nombre, cedula, codigo, un, cargo, _desdePlanta) {
+  var tbody = document.getElementById('filas');
+  var tr = document.createElement('tr');
+  var unOpts = UNS.map(function(u){
+    return '<option value="' + u + '"' + (u===(un||'') ? ' selected' : '') + '>' + u + '</option>';
+  }).join('');
+  var bg = _desdePlanta ? 'background:#f0f8ff;' : '';
+  function dpAttr(val) {
+    return _desdePlanta ? ' data-planta-val="' + esc(val||'') + '"' : '';
+  }
+  tr.innerHTML =
+      '<td><input type="text" value="' + esc(codigo||'') + '" placeholder="Código nómina"'
+    + ' style="width:100%;font-weight:bold;" onblur="autocompletarFila(this)"></td>'
+    + '<td><input type="text" value="' + esc(nombre||'') + '" placeholder="Nombre completo"'
+    + ' style="width:100%;' + bg + '"' + dpAttr(nombre) + ' onchange="verificarCambioManual(this)"></td>'
+    + '<td><input type="text" value="' + esc(cedula||'') + '" placeholder="Cédula"'
+    + ' style="width:100%;' + bg + '"' + dpAttr(cedula) + ' onchange="verificarCambioManual(this)"></td>'
+    + '<td><select style="width:100%;' + bg + '"' + dpAttr(un)
+    + ' onchange="verificarCambioManual(this)"><option value="">--</option>' + unOpts + '</select></td>'
+    + '<td><input type="text" value="' + esc(cargo||'') + '" placeholder="Cargo del empleado"'
+    + ' style="width:100%;' + bg + '"' + dpAttr(cargo) + ' onchange="verificarCambioManual(this)"></td>'
+    + '<td><button class="btn btn-gris" style="padding:3px 8px;" onclick="this.closest('tr').remove()">✕</button></td>';
+  tbody.appendChild(tr);
+  // Usar data-planta-val como dataset.plantaVal para verificacion
+  if (_desdePlanta) {
+    var ins = tr.querySelectorAll('input,select');
+    ins[1].dataset.plantaVal = nombre || '';
+    ins[2].dataset.plantaVal = cedula || '';
+    ins[3].dataset.plantaVal = un || '';
+    ins[4].dataset.plantaVal = cargo || '';
+  }
+}
+
+
+function pegarDesdeExcel(event) {
+  var text = (event.clipboardData || window.clipboardData).getData('text');
+  if (!text) return;
+  var lines = text.split(/\r?\n/).filter(function(l){ return l.trim(); });
+  if (lines.length > 1 || (lines.length === 1 && lines[0].includes('\t'))) {
+    event.preventDefault();
+    var sep = detectarSeparador(lines[0]);
+    var rows = lines.map(function(l){ return l.split(sep); });
+    var first = rows[0].join('').toLowerCase();
+    var start = /nombre|cedula|codigo|cargo/.test(first) ? 1 : 0;
+    for (var i = start; i < rows.length; i++) {
+      var col = rows[i];
+      // orden esperado desde Excel: código, nombre, cédula, UN, cargo
+      agregarFila(col[1]||'', col[2]||'', col[0]||'', col[3]||'', col[4]||'');
+    }
+  }
+}
+
+function detectarSeparador(line) {
+  if (line.includes('\t')) return '\t';
+  if (line.includes(';')) return ';';
+  return ',';
+}
+
+function cargarFilas(rows) {
+  document.getElementById('filas').innerHTML = '';
+  if (!rows || !rows.length) { agregarFila(); return; }
+  var sep = detectarSeparador(typeof rows[0] === 'string' ? rows[0] : rows[0].join(','));
+  var headerRow = Array.isArray(rows[0]) ? rows[0] : rows[0].split(sep).map(function(h){ return h.trim().replace(/^"|"$/g,''); });
+  var headerStr = headerRow.join('').toLowerCase();
+  var tieneHeader = /nombre|cedula|codigo|cargo/.test(headerStr);
+  var iK=0, iN=1, iC=2, iU=3, iG=4; // defaults: código primero
+  if (tieneHeader) {
+    headerRow.forEach(function(h, i){
+      var hn = h.toLowerCase().replace(/[^a-záéíóún]/gi,'');
+      if (/c[oó]digo|nomina/.test(hn)) iK = i;
+      else if (/nombre/.test(hn))       iN = i;
+      else if (/c[eé]dula/.test(hn))    iC = i;
+      else if (/un|unidad/.test(hn))iU = i;
+      else if (/cargo/.test(hn))        iG = i;
+    });
+  }
+  var start = tieneHeader ? 1 : 0;
+  var parsed = rows.slice(start).map(function(r){
+    return Array.isArray(r) ? r : r.split(sep).map(function(x){ return x.trim().replace(/^"|"$/g,''); });
+  });
+  parsed.forEach(function(r){
+    if (r.join('').trim())
+      agregarFila(r[iN]||'', r[iC]||'', r[iK]||'', r[iU]||'', r[iG]||'');
+  });
+  if (!parsed.length) agregarFila();
+}
+
+// ══════════════════════════════════════════════
+//  CONSECUTIVO
+// ══════════════════════════════════════════════
+function getConsecutivo(reimprimir) {
+  if (reimprimir) {
+    var raw = localStorage.getItem('carnets_emovil_consec') || 'A000';
+    return 'R1-' + raw;
+  }
+  var raw = localStorage.getItem('carnets_emovil_consec');
+  if (!raw) raw = 'A000';
+  var letra = raw.charAt(0);
+  var num   = parseInt(raw.slice(1), 10);
+  num++;
+  if (num > 999) { letra = String.fromCharCode(letra.charCodeAt(0) + 1); num = 0; }
+  var next = letra + String(num).padStart(3, '0');
+  localStorage.setItem('carnets_emovil_consec', next);
+  return next;
+}
+
+// ══════════════════════════════════════════════
+//  CREAR CARNET DOM
+// ══════════════════════════════════════════════
+function crearCarnet(d, idx, reimp) {
+  var consec = reimp ? ('R1-' + (d.consec||localStorage.getItem('carnets_emovil_consec')||'A000')) : getConsecutivo(false);
+  d.consec = consec;
+
+  var div = document.createElement('div');
+  div.className = 'carnet';
+  var img = document.createElement('img');
+  img.src = IMG_SRC;
+  img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;';
+  div.appendChild(img);
+
+  function span(cls, txt) {
+    var s = document.createElement('span');
+    s.className = cls;
+    s.textContent = txt || '';
+    div.appendChild(s);
+  }
+  span('d-nombre', d.nombre);
+  span('d-cedula', d.cedula);
+  span('d-codigo', d.codigo);
+  span('d-cargo',  d.cargo);
+  span('d-un',     d.un);
+  span('d-consec', consec);
+  return { div: div, consec: consec };
+}
+
+// ══════════════════════════════════════════════
+//  OBTENER DATOS DE LAS FILAS
+// ══════════════════════════════════════════════
+function obtenerDatos() {
+  var rows = document.getElementById('filas').querySelectorAll('tr');
+  var datos = [];
+  rows.forEach(function(tr) {
+    var ins = tr.querySelectorAll('input,select');
+    var codigo = ins[0] ? ins[0].value.trim() : '';
+    var nombre = ins[1] ? ins[1].value.trim() : '';
+    var cedula = ins[2] ? ins[2].value.trim() : '';
+    var un     = ins[3] ? ins[3].value.trim() : '';
+    var cargo  = ins[4] ? ins[4].value.trim() : '';
+    if (codigo || nombre || cedula) {
+      datos.push({ nombre:nombre, cedula:cedula, codigo:codigo, un:un, cargo:cargo });
+    }
+  });
+  return datos;
+}
+
+// ══════════════════════════════════════════════
+//  GENERAR CARNETS
+// ══════════════════════════════════════════════
+function generar() {
+  var datos = obtenerDatos();
+  if (!datos.length) { alert('Agrega al menos un empleado.'); return; }
+
+  // Verificar duplicados
+  var dups = verificarDuplicados(datos);
+  if (dups.length) {
+    var msg = 'Los siguientes códigos ya tienen carnet en el historial:\n' + dups.join(', ')
+      + '\n\n¿Deseas continuar y generar igualmente?';
+    if (!confirm(msg)) return;
+  }
+
+  var area = document.getElementById('carnetArea');
+  area.innerHTML = '';
+  document.getElementById('btnImprimir').style.display = '';
+
+  var COLS = 8;
+  var pagina = null;
+  var col = 0;
+
+  datos.forEach(function(d, idx) {
+    if (col % COLS === 0) {
+      pagina = document.createElement('div');
+      pagina.className = 'pagina';
+      area.appendChild(pagina);
+    }
+    var res = crearCarnet(d, idx, false);
+    pagina.appendChild(res.div);
+    d.consec = res.consec;
+    col++;
+  });
+
+  // Guardar en historial
+  guardarEnHistorial(datos);
+
+  // Log
+  var s = sesionActual();
+  registrarLog((s?s.login:'?'), 'Generó ' + datos.length + ' carnet(s): ' + datos.map(function(d){ return d.codigo; }).join(', '));
+
+  document.getElementById('carnetArea').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+//  IMPRIMIR
+// ══════════════════════════════════════════════
+function imprimir() { window.print(); }
+
+// ══════════════════════════════════════════════
+//  DESCARGAR PLANTILLA CSV
+// ══════════════════════════════════════════════
+function descargarPlantilla() {
+  var csv = 'Código de Nómina,Nombre,Cédula,UN,Cargo\n'
+    + 'EMP001,Juan Pérez García,12345678,MT,Técnico de Redes\n'
+    + 'EMP002,María López Ordóñez,87654321,PE,Analista de Sistemas\n';
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plantilla_carnets_emovil.csv';
+  a.click();
+}
+
+// ══════════════════════════════════════════════
+//  CARGAR ARCHIVO (CSV / EXCEL)
+// ══════════════════════════════════════════════
+var _verifRows = []; // filas pendientes de confirmación
+
+function cargarArchivo(input) {
+  var f = input.files[0];
+  if (!f) return;
+  var nombre = f.name.toLowerCase();
+  if (nombre.endsWith('.csv') || nombre.endsWith('.txt')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var bytes = new Uint8Array(e.target.result);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
+      catch(ex) { text = new TextDecoder('windows-1252').decode(bytes); }
+      mostrarVerificacion(text.split(/\r?\n/));
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, { type: 'array' });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      mostrarVerificacion(XLSX.utils.sheet_to_csv(ws).split('\n'));
+    };
+    reader2.readAsArrayBuffer(f);
+  }
+}
+
+function mostrarVerificacion(rawRows) {
+  // Parsear igual que cargarFilas
+  var sep = detectarSeparador(typeof rawRows[0] === 'string' ? rawRows[0] : ',');
+  var headerRow = rawRows[0].split(sep).map(function(h){ return h.trim().replace(/^"|"$/g,''); });
+  var headerStr = headerRow.join('').toLowerCase();
+  var tieneHeader = /nombre|cedula|codigo|cargo/.test(headerStr);
+  var iK=0, iN=1, iC=2, iU=3, iG=4;
+  if (tieneHeader) {
+    headerRow.forEach(function(h, i){
+      var hn = h.toLowerCase().replace(/[^a-záéíóún]/gi,'');
+      if (/c[oó]digo|nomina/.test(hn)) iK = i;
+      else if (/nombre/.test(hn))       iN = i;
+      else if (/c[eé]dula/.test(hn))    iC = i;
+      else if (/un|unidad/.test(hn))iU = i;
+      else if (/cargo/.test(hn))        iG = i;
+    });
+  }
+  var start = tieneHeader ? 1 : 0;
+  var filas = [];
+  rawRows.slice(start).forEach(function(r) {
+    if (!r.trim()) return;
+    var cols = r.split(sep).map(function(x){ return x.trim().replace(/^"|"$/g,''); });
+    filas.push({ k: cols[iK]||'', n: cols[iN]||'', c: cols[iC]||'', u: cols[iU]||'', g: cols[iG]||'' });
+  });
+
+  // Comparar con planta
+  var hayDiferencias = false;
+  filas.forEach(function(f) {
+    var planta = buscarEnPlanta(f.k);
+    if (!planta) { f._estado = 'nuevo'; }
+    else if (planta.n===f.n && planta.c===f.c && planta.u===f.u && planta.g===f.g) { f._estado = 'igual'; }
+    else { f._estado = 'diferente'; f._planta = planta; hayDiferencias = true; }
+  });
+
+  _verifRows = filas;
+
+  // Construir tabla
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.8rem;">'
+    + '<thead><tr style="background:#f0f0f0;position:sticky;top:0;">'
+    + '<th style="padding:5px 6px;"></th>'
+    + '<th style="padding:5px 6px;text-align:left;">Código</th>'
+    + '<th style="padding:5px 6px;text-align:left;">Nombre</th>'
+    + '<th style="padding:5px 6px;text-align:left;">Cédula</th>'
+    + '<th style="padding:5px 6px;text-align:left;">UN</th>'
+    + '<th style="padding:5px 6px;text-align:left;">Cargo</th>'
+    + '<th style="padding:5px 6px;text-align:left;">Estado</th>'
+    + '</tr></thead><tbody>';
+
+  filas.forEach(function(f, i) {
+    var bg = f._estado === 'igual' ? '#e8f5e9' : f._estado === 'diferente' ? '#fff3e0' : '#e3f2fd';
+    var icono = f._estado === 'igual' ? '✅' : f._estado === 'diferente' ? '⚠' : 'ℹ';
+    var label = f._estado === 'igual' ? 'Igual a planta' : f._estado === 'diferente' ? 'Difiere de planta' : 'No está en planta';
+    html += '<tr style="background:' + bg + ';border-bottom:1px solid #ddd;" data-idx="' + i + '">'
+      + '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" checked data-row="' + i + '"></td>'
+      + '<td style="padding:4px 6px;font-weight:bold;">' + esc(f.k) + '</td>'
+      + '<td style="padding:4px 6px;">' + esc(f.n) + '</td>'
+      + '<td style="padding:4px 6px;">' + esc(f.c) + '</td>'
+      + '<td style="padding:4px 6px;">' + esc(f.u) + '</td>'
+      + '<td style="padding:4px 6px;">' + esc(f.g) + '</td>'
+      + '<td style="padding:4px 6px;">' + icono + ' <span style="font-size:.75rem;">' + esc(label) + '</span>';
+    if (f._estado === 'diferente' && f._planta) {
+      html += '<div style="font-size:.72rem;color:#777;margin-top:2px;">Planta: '
+        + esc(f._planta.n) + ' | ' + esc(f._planta.c) + ' | ' + esc(f._planta.u) + ' | ' + esc(f._planta.g)
+        + '</div>';
+    }
+    html += '</td></tr>';
+  });
+  html += '</tbody></table>';
+
+  document.getElementById('verifTabla').innerHTML = html;
+  document.getElementById('verifAdminBox').style.display = hayDiferencias ? '' : 'none';
+  document.getElementById('verifBtnBox').style.display = hayDiferencias ? 'none' : '';
+  document.getElementById('verifAdminMsg').textContent = '';
+  document.getElementById('modalVerif').style.display = 'flex';
+}
+
+function confirmarVerif() {
+  var hayDiferencias = _verifRows.some(function(f){ return f._estado === 'diferente'; });
+  if (hayDiferencias) {
+    var pass = document.getElementById('verifAdminPass').value;
+    var users = cargarUsuarios();
+    var esAdmin = Object.keys(users).some(function(k){
+      var u = users[k];
+      return u.rol === 'admin' && u.pass && (function(){ try{ return atob(u.pass) === pass; }catch(e){ return false; } })();
+    });
+    if (!esAdmin) {
+      document.getElementById('verifAdminMsg').textContent = 'Contraseña de administrador incorrecta.';
+      return;
+    }
+  }
+  // Cargar solo filas seleccionadas
+  var checkboxes = document.getElementById('verifTabla').querySelectorAll('input[type=checkbox]');
+  document.getElementById('filas').innerHTML = '';
+  var cargadas = 0;
+  checkboxes.forEach(function(ch) {
+    if (!ch.checked) return;
+    var idx = parseInt(ch.dataset.row);
+    var f = _verifRows[idx];
+    if (!f) return;
+    var desdePlanta = (f._estado === 'igual');
+    agregarFila(f.n, f.c, f.k, f.u, f.g, desdePlanta);
+    cargadas++;
+  });
+  cerrarVerif();
+  if (!cargadas) agregarFila();
+}
+
+function cerrarVerif() {
+  document.getElementById('modalVerif').style.display = 'none';
+  document.getElementById('verifAdminPass').value = '';
+  _verifRows = [];
+}
+
+// ══════════════════════════════════════════════
+//  INICIALIZACIÓN
+// ══════════════════════════════════════════════
+function seedRows() {
+  var tbody = document.getElementById('filas');
+  if (!tbody || tbody.rows.length) return;
+  agregarFila();
+}
+
+
+// ── Cargar planta desde Admin ──
+function cargarPlantaDesdeAdmin() {
+  var input = document.getElementById('archivoMaestroAdmin');
+  var msgEl = document.getElementById('plantaAdminMsg');
+  var resEl = document.getElementById('plantaResumen');
+  if (!input || !input.files.length) {
+    msgEl.innerHTML = '<span style="color:red">Selecciona un archivo primero.</span>';
+    return;
+  }
+  var f = input.files[0];
+  var nombre = f.name.toLowerCase();
+  function onRows(lines) {
+    var nuevos = parsearFilasMaestro(lines);
+    var existente;
+    try { existente = JSON.parse(localStorage.getItem(PLANTA_KEY)) || []; } catch(e) { existente = []; }
+    var antesN = existente.length;
+    _listaMaestra = mergePlanta(existente, nuevos);
+    var agregados = _listaMaestra.length - antesN;
+    var duplic    = nuevos.length - (agregados > 0 ? agregados : 0);
+    localStorage.setItem(PLANTA_KEY, JSON.stringify(_listaMaestra));
+    if (typeof gsSync === 'function' && GS_URL) gsSync(PLANTA_KEY, _listaMaestra);
+    var s = sesionActual();
+    registrarLog((s?s.login:'?'), 'Actualizó planta: ' + nuevos.length + ' en archivo, '
+      + agregados + ' nuevos, ' + duplic + ' ya existían');
+    msgEl.innerHTML = '<span style="color:green">✓ Actualización completada: '
+      + '<b>' + nuevos.length + '</b> en el archivo, '
+      + '<b>' + (agregados > 0 ? agregados : 0) + '</b> nuevos agregados, '
+      + '<b>' + duplic + '</b> ya existían (sin cambios).'
+      + '</span>';
+    resEl.textContent = 'Total planta: ' + _listaMaestra.length + ' empleados activos.';
+  }
+  if (nombre.endsWith('.csv') || nombre.endsWith('.txt')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var bytes = new Uint8Array(e.target.result);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal:true}).decode(bytes); }
+      catch(ex) { text = new TextDecoder('windows-1252').decode(bytes); }
+      onRows(text.split(/
+?
+/));
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      onRows(XLSX.utils.sheet_to_csv(ws).split('
+'));
+    };
+    reader2.readAsArrayBuffer(f);
+  }
+}
+
+function mostrarResumenPlanta() {
+  var resEl = document.getElementById('plantaResumen');
+  var msgEl = document.getElementById('plantaAdminMsg');
+  if (!resEl) return;
+  try { _listaMaestra = JSON.parse(localStorage.getItem(PLANTA_KEY)) || _listaMaestra; } catch(e) {}
+  if (_listaMaestra.length) {
+    resEl.textContent = '📋 Planta activa: ' + _listaMaestra.length + ' empleados cargados.';
+    if (msgEl) msgEl.innerHTML = '';
+  } else {
+    resEl.textContent = 'Sin planta cargada.';
+  }
+}
+
+function limpiarPlanta() {
+  if (!confirm('¿Borrar la planta de empleados cargada?')) return;
+  _listaMaestra = [];
+  localStorage.removeItem(PLANTA_KEY);
+  if (typeof gsSync === 'function' && GS_URL) gsSync(PLANTA_KEY, []);
+  var msgEl = document.getElementById('plantaAdminMsg');
+  var resEl = document.getElementById('plantaResumen');
+  if (msgEl) msgEl.innerHTML = '<span style="color:#888">Planta borrada.</span>';
+  if (resEl) resEl.textContent = '';
+}
+
+// ══════════════════════════════════════════════
+//  GOOGLE SHEETS INTEGRATION
+// ══════════════════════════════════════════════
+var GS_URL = localStorage.getItem('carnets_emovil_gsurl') || '';
+var GS_KEYS = [USERS_KEY, HIST_KEY, LOG_KEY, CFG_KEY, BLQ_KEY, PLANTA_KEY, 'carnets_emovil_consec'];
+
+function gsSync(key, value) {
+  if (!GS_URL) return;
+  fetch(GS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ key: key, value: value })
+  }).catch(function(e){ console.warn('GS sync error:', e); });
+}
+
+function patchGuardar() {
+  // Patch guardarUsuarios
+  var _gu = guardarUsuarios;
+  guardarUsuarios = function(u) { _gu(u); gsSync(USERS_KEY, u); };
+  // Patch guardarConfig
+  var _gc = guardarConfig;
+  guardarConfig = function(c) { _gc(c); gsSync(CFG_KEY, c); };
+  // Patch guardarBloqueos
+  var _gb = guardarBloqueos;
+  guardarBloqueos = function(b) { _gb(b); gsSync(BLQ_KEY, b); };
+  // Patch registrarLog
+  var _rl = registrarLog;
+  registrarLog = function(u, a) {
+    _rl(u, a);
+    gsSync(LOG_KEY, cargarLog());
+  };
+  // Patch guardarEnHistorial
+  var _gh = guardarEnHistorial;
+  guardarEnHistorial = function(r) {
+    _gh(r);
+    gsSync(HIST_KEY, cargarHistorial());
+  };
+  // Patch getConsecutivo
+  var _gk = getConsecutivo;
+  getConsecutivo = function(reimp) {
+    var c = _gk(reimp);
+    if (!reimp) gsSync('carnets_emovil_consec', localStorage.getItem('carnets_emovil_consec'));
+    return c;
+  };
+}
+
+function sincronizarDesdeGS(data) {
+  if (data[USERS_KEY])  localStorage.setItem(USERS_KEY,  JSON.stringify(data[USERS_KEY]));
+  if (data[HIST_KEY])   localStorage.setItem(HIST_KEY,   JSON.stringify(data[HIST_KEY]));
+  if (data[LOG_KEY])    localStorage.setItem(LOG_KEY,    JSON.stringify(data[LOG_KEY]));
+  if (data[CFG_KEY])    localStorage.setItem(CFG_KEY,    JSON.stringify(data[CFG_KEY]));
+  if (data[BLQ_KEY])    localStorage.setItem(BLQ_KEY,    JSON.stringify(data[BLQ_KEY]));
+  if (data['carnets_emovil_consec']) {
+    localStorage.setItem('carnets_emovil_consec', data['carnets_emovil_consec']);
+  }
+  if (data[PLANTA_KEY]) {
+    localStorage.setItem(PLANTA_KEY, JSON.stringify(data[PLANTA_KEY]));
+    _listaMaestra = data[PLANTA_KEY];
+  }
+}
+
+function mostrarPantallaConfigGS() {
+  document.getElementById('configGSScreen').style.display = 'flex';
+}
+
+function guardarUrlGS() {
+  var url = (document.getElementById('gsUrlInput').value || '').trim();
+  var err = document.getElementById('gsUrlError');
+  if (!url || !url.startsWith('https://script.google.com')) {
+    err.textContent = 'URL inválida. Debe empezar con https://script.google.com/...';
+    return;
+  }
+  err.textContent = '';
+  GS_URL = url;
+  localStorage.setItem('carnets_emovil_gsurl', GS_URL);
+  document.getElementById('configGSScreen').style.display = 'none';
+  cargarDesdeGSYIniciar();
+}
+
+function usarModoOffline() {
+  document.getElementById('configGSScreen').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'none';
+  completarInit();
+}
+
+function cargarDesdeGSYIniciar() {
+  var ls = document.getElementById('loadingScreen');
+  var connErr = document.getElementById('gsConnError');
+  var offBtn = document.getElementById('gsOfflineBtn');
+  ls.style.display = 'flex';
+  fetch(GS_URL + '?ts=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      sincronizarDesdeGS(data);
+      ls.style.display = 'none';
+      completarInit();
+    })
+    .catch(function(err) {
+      connErr.textContent = 'No se pudo conectar: ' + err.message;
+      connErr.style.display = 'block';
+      offBtn.style.display = 'inline-block';
+    });
+}
+
+function completarInit() {
+  actualizarContadorHist();
+  patchGuardar();
+  renderPermisosCheckboxes(PERMISOS_DEFAULT['operador']);
+
+  // Indicador de conexión
+  var ind = document.createElement('span');
+  ind.id = 'gsIndicator';
+  ind.title = GS_URL ? 'Sincronizado con Google Sheets' : 'Modo local (sin sincronización)';
+  ind.style.cssText = 'font-size:.72rem;padding:2px 8px;border-radius:10px;margin-left:8px;'
+    + (GS_URL ? 'background:#27ae60;color:#fff;' : 'background:#f39c12;color:#fff;');
+  ind.textContent = GS_URL ? '☁ Sheets' : '💻 Local';
+  var ui = document.getElementById('userInfo');
+  if (ui) ui.appendChild(ind);
+
+  // Verificar sesión existente
+  var s = sesionActual();
+  if (s) {
+    var cfg = cargarConfig();
+    if (cfg.hombreMuertoTs && cfg.hombreMuertoTs > s.inicio) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    iniciarApp(s);
+    reiniciarTimerSesion();
+  }
+
+  document.getElementById('loginPass').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('loginUser').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('loginPass').focus();
+  });
+  document.getElementById('filas').addEventListener('paste', pegarDesdeExcel);
+}
+
+window.addEventListener('load', function() {
+  seedRows();
+  if (!GS_URL) {
+    mostrarPantallaConfigGS();
+  } else {
+    cargarDesdeGSYIniciar();
+  }
+});
+</script>
+</body>
+</html>
