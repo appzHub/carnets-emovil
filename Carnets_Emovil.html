@@ -1696,9 +1696,9 @@ function generar() {
     if (!confirm(msg)) return;
   }
 
-  var area = document.getElementById('carnetArea');
+  var area = document.getElementById('paginas');
   area.innerHTML = '';
-  document.getElementById('btnImprimir').style.display = '';
+  document.getElementById('vista').style.display = 'block';
 
   var COLS = 8;
   var pagina = null;
@@ -1723,7 +1723,7 @@ function generar() {
   var s = sesionActual();
   registrarLog((s?s.login:'?'), 'Generó ' + datos.length + ' carnet(s): ' + datos.map(function(d){ return d.codigo; }).join(', '));
 
-  document.getElementById('carnetArea').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('vista').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ══════════════════════════════════════════════
@@ -2069,12 +2069,26 @@ function borrarUrlGS() {
   if (inp) inp.value = '';
 }
 
+function completarInit() {
+  if (GS_URL) patchGuardar();
+}
+
+function cargarDesdeGSYIniciar() {
+  fetch(GS_URL + '?t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data && data.ok) sincronizarDesdeGS(data.data);
+      completarInit();
+    })
+    .catch(function(){ completarInit(); });
+}
+
 window.addEventListener('load', function() {
   seedRows();
   if (GS_URL) {
     cargarDesdeGSYIniciar();
   } else {
-    completarInit(); // Sin GS: abrir directo al login en modo local
+    completarInit();
   }
 });
 </script>
