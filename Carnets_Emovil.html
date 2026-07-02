@@ -1518,7 +1518,7 @@ function agregarFila(nombre, cedula, codigo, un, cargo, _desdePlanta) {
     + ' onchange="verificarCambioManual(this)"><option value="">--</option>' + unOpts + '</select></td>'
     + '<td><input type="text" value="' + esc(cargo||'') + '" placeholder="Cargo del empleado"'
     + ' style="width:100%;' + bg + '"' + dpAttr(cargo) + ' onchange="verificarCambioManual(this)"></td>'
-    + '<td><button class="btn btn-gris" style="padding:3px 8px;" onclick="this.closest('tr').remove()">✕</button></td>';
+    + '<td><button class="btn btn-gris" style="padding:3px 8px;" onclick="this.parentNode.parentNode.remove()">&#10005;</button></td>';
   tbody.appendChild(tr);
   // Usar data-planta-val como dataset.plantaVal para verificacion
   if (_desdePlanta) {
