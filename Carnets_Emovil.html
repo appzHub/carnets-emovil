@@ -1487,7 +1487,18 @@ function autocompletarFila(codigoInput) {
   // 0=codigo, 1=nombre, 2=cedula, 3=UN, 4=cargo
   ins[1].value = dato.n || '';
   ins[2].value = dato.c || '';
-  ins[3].value = dato.u || '';
+  // UN: si el valor no existe en las opciones, agregarlo dinámicamente
+  var unVal = (dato.u || '').trim();
+  if (unVal) {
+    var sel = ins[3];
+    var existe = Array.from(sel.options).some(function(o){ return o.value === unVal; });
+    if (!existe) {
+      var opt = document.createElement('option');
+      opt.value = unVal; opt.textContent = unVal;
+      sel.appendChild(opt);
+    }
+    sel.value = unVal;
+  }
   ins[4].value = dato.g || '';
   [ins[1], ins[2], ins[3], ins[4]].forEach(function(el) {
     el.dataset.plantaVal = el.value;
@@ -1529,7 +1540,9 @@ function verificarCambioManual(input) {
 function agregarFila(nombre, cedula, codigo, un, cargo, _desdePlanta) {
   var tbody = document.getElementById('filas');
   var tr = document.createElement('tr');
-  var unOpts = UNS.map(function(u){
+  // Incluir el valor de UN de la planta aunque no esté en UNS
+  var unExtra = (un && UNS.indexOf(un) === -1) ? [un] : [];
+  var unOpts = UNS.concat(unExtra).map(function(u){
     return '<option value="' + u + '"' + (u===(un||'') ? ' selected' : '') + '>' + u + '</option>';
   }).join('');
   var bg = _desdePlanta ? 'background:#f0f8ff;' : '';
