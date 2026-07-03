@@ -422,6 +422,21 @@ td input:focus, td select:focus { border-color:#8B0000; outline:none; }
         <div id="plantaResumen" style="font-size:.8rem;margin-top:6px;color:#555;"></div>
       </div>
 
+      <!-- ─── Respaldo de datos ─────────────── -->
+      <div class="admin-section">
+        <h3>&#128190; Respaldo de datos</h3>
+        <p style="font-size:.8rem;color:#c0392b;font-weight:bold;margin:0 0 4px;">
+          ⚠ Los datos se guardan en ESTE navegador. Si cambias de equipo o borras el caché, se pierden.
+        </p>
+        <p style="font-size:.8rem;color:#555;margin:0 0 10px;line-height:1.5;">
+          Exporta copia de seguridad regularmente y guárdala en un lugar seguro.
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-rojo" onclick="exportarTodosLosDatos()">&#11015; Exportar copia de seguridad</button>
+          <label class="btn btn-gris" style="cursor:pointer;padding:7px 14px;border-radius:5px;font-size:.83rem;">&#128280; Restaurar desde backup<input type="file" accept=".json" onchange="importarTodosLosDatos(event)" style="display:none;"></label>
+        </div>
+        <div id="backupMsg" style="font-size:.8rem;margin-top:8px;color:#27ae60;"></div>
+      </div>
       <!-- ─── Log de acceso ─────────────────────────── -->
       <div class="admin-section">
         <h3>&#128203; Log de acceso</h3>
@@ -2096,15 +2111,51 @@ function cargarDesdeGSYIniciar() {
     .catch(function(){ completarInit(); });
 }
 
+function exportarTodosLosDatos() {
+  var data = { _exportado: new Date().toISOString() };
+  [USERS_KEY, HIST_KEY, LOG_KEY, CFG_KEY, BLQ_KEY, PLANTA_KEY].forEach(function(k) {
+    var v = localStorage.getItem(k);
+    if (v) { try { data[k] = JSON.parse(v); } catch(e) { data[k] = v; } }
+  });
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'backup_emovil_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  var s = sesionActual(); registrarLog((s?s.login:'?'), 'Exportó copia de seguridad');
+  var m = document.getElementById('backupMsg');
+  if (m) { m.textContent = '✓ Backup exportado'; setTimeout(function(){ m.textContent=''; }, 4000); }
+}
+function importarTodosLosDatos(event) {
+  var file = event.target.files[0]; if (!file) return;
+  if (!confirm('Restaurar datos desde "' + file.name + '"?\nUsuarios e historial del backup se combinarán con los actuales.')) { event.target.value=''; return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var d = JSON.parse(e.target.result);
+      if (d[USERS_KEY]) { var eu=cargarUsuarios(); Object.assign(eu, d[USERS_KEY]); guardarUsuarios(eu); }
+      if (d[HIST_KEY]) { var eh=cargarHistorial(); var cs=eh.map(function(r){ return r.consec; }); d[HIST_KEY].forEach(function(r){ if (!cs.includes(r.consec)) eh.push(r); }); eh.sort(function(a,b){ return (b.ts||0)-(a.ts||0); }); localStorage.setItem(HIST_KEY, JSON.stringify(eh)); }
+      if (d[LOG_KEY]) { var el=cargarLog(); var ts=el.map(function(r){ return r.ts; }); d[LOG_KEY].forEach(function(r){ if (!ts.includes(r.ts)) el.push(r); }); el.sort(function(a,b){ return (b.ts||0)-(a.ts||0); }); localStorage.setItem(LOG_KEY, JSON.stringify(el)); }
+      if (d[PLANTA_KEY]) { localStorage.setItem(PLANTA_KEY, JSON.stringify(d[PLANTA_KEY])); _listaMaestra = d[PLANTA_KEY]; }
+      if (d[CFG_KEY]) { localStorage.setItem(CFG_KEY, JSON.stringify(d[CFG_KEY])); }
+      var s=sesionActual(); registrarLog((s?s.login:'?'), 'Restauró backup: '+file.name);
+      alert('✓ Datos restaurados. La página se recargará.'); location.reload();
+    } catch(err) { alert('Error al importar: ' + err.message); }
+  };
+  reader.readAsText(file); event.target.value='';
+}
+function completarInit() { if (GS_URL) patchGuardar(); }
+function cargarDesdeGSYIniciar() {
+  fetch(GS_URL + '?t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){ if (data && data.ok) sincronizarDesdeGS(data.data); completarInit(); })
+    .catch(function(){ completarInit(); });
+}
 window.addEventListener('load', function() {
-  // Cargar planta desde localStorage al iniciar (persiste entre sesiones)
+  if (!localStorage.getItem(USERS_KEY)) { guardarUsuarios(defaultUsers()); }
   try { _listaMaestra = JSON.parse(localStorage.getItem(PLANTA_KEY)) || []; } catch(e) {}
   seedRows();
-  if (GS_URL) {
-    cargarDesdeGSYIniciar();
-  } else {
-    completarInit();
-  }
+  if (GS_URL) { cargarDesdeGSYIniciar(); } else { completarInit(); }
 });
 </script>
 </body>
